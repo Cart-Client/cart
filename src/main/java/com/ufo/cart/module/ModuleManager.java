@@ -2,9 +2,8 @@ package com.ufo.cart.module;
 
 import com.ufo.cart.Client;
 import com.ufo.cart.module.modules.client.ClickGUI;
-import com.ufo.cart.module.modules.combat.CrystalOptimizer;
+import com.ufo.cart.module.modules.misc.CrystalOptimizer;
 import com.ufo.cart.module.modules.combat.DoubleAnchor;
-import com.ufo.cart.module.modules.combat.HoverTotem;
 import com.ufo.cart.event.EventListener;
 
 import java.util.ArrayList;
@@ -64,7 +63,6 @@ public final class ModuleManager implements EventListener {
         add(new ClickGUI());
         add(new CrystalOptimizer());
         add(new DoubleAnchor());
-        add(new HoverTotem());
     }
 
     public void add(Module module) {
