@@ -9,8 +9,10 @@ import com.ufo.cart.module.setting.ModeSetting;
 import com.ufo.cart.module.setting.NumberSetting;
 import com.ufo.cart.module.setting.Setting;
 import imgui.ImGui;
+import imgui.ImGuiStyle;
 import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiInputTextFlags;
+import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImFloat;
 import imgui.type.ImString;
 import net.minecraft.client.MinecraftClient;
@@ -25,6 +27,19 @@ public class ClickImgui extends Screen {
     private Module module;
     private boolean shouldSetKey = false;
 
+    // Rounding and border settings matching Cyrus
+    private final float[] windowRounding = {2.5f};
+    private final float[] frameRounding = {3.725f};
+    private final float[] windowBorderSize = {3.5f};
+    private final float[] windowPadding = {10.0f, 8.0f};
+
+    // Variables for dragging
+    private boolean dragging = false;
+    private float dragOffsetX = 0;
+    private float dragOffsetY = 0;
+    private float windowPosX = 50;
+    private float windowPosY = 50;
+
     public ClickImgui() {
         super(Text.empty());
     }
@@ -34,9 +49,30 @@ public class ClickImgui extends Screen {
         setupImGuiColors();
 
         ImGuiImpl.render(io -> {
-            ImGui.setNextWindowSize(1000, 500);
-            if (ImGui.begin("carts")) {
+            ImGui.setNextWindowSize(500, 300); // Window size from Cyrus
+            ImGui.setNextWindowPos(windowPosX, windowPosY); // Set position
+
+            if (ImGui.begin("cart", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoResize)) {
+                // Handle dragging
+                if (ImGui.isMouseDragging(0)) {
+                    if (!dragging) {
+                        dragging = true;
+                        dragOffsetX = mouseX - windowPosX;
+                        dragOffsetY = mouseY - windowPosY;
+                    } else {
+                        windowPosX = mouseX - dragOffsetX;
+                        windowPosY = mouseY - dragOffsetY;
+                    }
+                } else {
+                    dragging = false;
+                }
+
+                // Update ImGui style
+                updateStyle();
+
                 ImGui.beginTabBar("Main");
+
+                // Category Tabs
                 for (Category category1 : Category.values()) {
                     if (ImGui.beginTabItem(category1.name + "##tab")) {
                         category = category1;
@@ -46,6 +82,7 @@ public class ClickImgui extends Screen {
                 ImGui.endTabBar();
 
                 if (category != null) {
+                    // Module List
                     for (Module module : Client.INSTANCE.getModuleManager().getModulesInCategory(category)) {
                         ImGui.setCursorPosX(ImGui.getCursorPosX() + 20);
                         if (ImGui.collapsingHeader(module.getName())) {
@@ -59,43 +96,11 @@ public class ClickImgui extends Screen {
                             }
 
                             ImGui.separator();
+
+                            // Module Settings
                             for (Setting property : module.getSettings()) {
-                                if (property.getDependencyBoolSetting() != null && property.getDependencyBoolSetting() instanceof BooleanSetting dependency && !dependency.getValue()) {
-                                    continue;
-                                }
-
-                                if (property.dependencyModeSetting() != null && property.dependencyModeSetting() instanceof ModeSetting dependency && !dependency.isMode(property.dependencyMode())) {
-                                    continue;
-                                }
-
-                                if (property instanceof BooleanSetting booleanSetting) {
-                                    if (ImGui.checkbox(property.getName(), booleanSetting.getValue())) {
-                                        booleanSetting.setValue(!booleanSetting.getValue());
-                                    }
-                                }
-
-                                if (property instanceof NumberSetting numberProperty) {
-                                    float currentValue = (float) numberProperty.getValue();
-                                    ImFloat imFloat = new ImFloat(currentValue);
-                                    if (ImGui.sliderFloat("##" + numberProperty.getName(), imFloat.getData(), (float) numberProperty.getMin(), (float) numberProperty.getMax(), numberProperty.getName() + " " + imFloat.getData()[0])) {
-                                        numberProperty.setValue(imFloat.get());
-                                    }
-                                }
-
-                                if (property instanceof ModeSetting modeProperty) {
-                                    if (ImGui.beginCombo(modeProperty.getName(), modeProperty.getMode())) {
-                                        ImGui.inputTextWithHint("##" + modeProperty.getMode(), "Search For Modes.", searchText, ImGuiInputTextFlags.None);
-                                        String search = searchText.get().toLowerCase();
-                                        for (String mode : modeProperty.getModes()) {
-                                            if (search.isEmpty() || mode.toLowerCase().contains(search)) {
-                                                if (ImGui.selectable(mode)) {
-                                                    modeProperty.setMode(mode);
-                                                    searchText.set(new ImString(500));
-                                                }
-                                            }
-                                        }
-                                        ImGui.endCombo();
-                                    }
+                                if (shouldDisplayProperty(property)) {
+                                    drawSetting(property);
                                 }
                             }
                         } else {
@@ -108,6 +113,20 @@ public class ClickImgui extends Screen {
             // Pop the style colors after rendering
             ImGui.popStyleColor(16);
         });
+    }
+
+    private void updateStyle() {
+        ImGuiStyle style = ImGui.getStyle();
+        style.setWindowRounding(windowRounding[0]);
+        style.setFrameRounding(frameRounding[0]);
+        style.setWindowBorderSize(windowBorderSize[0]);
+        style.setWindowPadding(windowPadding[0], windowPadding[1]);
+        style.setItemSpacing(10.0f, 4.0f); // Optional: adjust item spacing if desired
+    }
+
+    private boolean shouldDisplayProperty(Setting property) {
+        return !(property.getDependencyBoolSetting() instanceof BooleanSetting depBool && !depBool.getValue()) &&
+                !(property.dependencyModeSetting() instanceof ModeSetting depMode && !depMode.isMode(property.dependencyMode()));
     }
 
     @Override
@@ -136,27 +155,63 @@ public class ClickImgui extends Screen {
         }
     }
 
-    private void setupImGuiColors() {
-        ImGui.pushStyleColor(ImGuiCol.WindowBg, 0.05f, 0.05f, 0.05f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.4f, 0.1f, 0.6f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.TabActive, 0.6f, 0.2f, 0.8f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.Tab, 0.4f, 0.2f, 0.6f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.TabUnfocused, 0.3f, 0.05f, 0.4f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.Button, 0.4f, 0.2f, 0.6f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 0.6f, 0.3f, 0.8f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.FrameBg, 0.2f, 0.1f, 0.3f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.Header, 0.2f, 0.1f, 0.3f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.HeaderHovered, 0.5f, 0.2f, 0.7f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.HeaderActive, 0.6f, 0.3f, 0.8f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.CheckMark, 0.7f, 0.3f, 0.9f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.SliderGrab, 0.8f, 0.3f, 1.0f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.SliderGrabActive, 0.9f, 0.4f, 1.2f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.FrameBgHovered, 0.4f, 0.2f, 0.5f, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.FrameBgActive, 0.5f, 0.3f, 0.6f, 1.0f);
+    private void drawSetting(Setting property) {
+        if (property instanceof BooleanSetting booleanSetting) {
+            if (ImGui.checkbox(property.getName(), booleanSetting.getValue())) {
+                booleanSetting.setValue(!booleanSetting.getValue());
+            }
+        }
+
+        if (property instanceof NumberSetting numberProperty) {
+            float currentValue = (float) numberProperty.getValue();
+            ImFloat imFloat = new ImFloat(currentValue);
+            if (ImGui.sliderFloat("##" + numberProperty.getName(), imFloat.getData(), (float) numberProperty.getMin(), (float) numberProperty.getMax(), numberProperty.getName() + " " + imFloat.getData()[0])) {
+                numberProperty.setValue(imFloat.get());
+            }
+        }
+
+        if (property instanceof ModeSetting modeProperty) {
+            if (ImGui.beginCombo(modeProperty.getName(), modeProperty.getMode())) {
+                ImGui.inputTextWithHint("##" + modeProperty.getMode(), "Search For Modes.", searchText, ImGuiInputTextFlags.None);
+                String search = searchText.get().toLowerCase();
+                for (String mode : modeProperty.getModes()) {
+                    if (search.isEmpty() || mode.toLowerCase().contains(search)) {
+                        if (ImGui.selectable(mode)) {
+                            modeProperty.setMode(mode);
+                            searchText.set(new ImString(500));
+                        }
+                    }
+                }
+                ImGui.endCombo();
+            }
+        }
     }
 
+    private void setupImGuiColors() {
+        // Set up a sleek color scheme
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 0.1f, 0.1f, 0.1f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.TitleBg, 0.15f, 0.15f, 0.15f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.TitleBgActive, 0.2f, 0.2f, 0.2f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.Tab, 0.2f, 0.2f, 0.2f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.TabHovered, 0.4f, 0.4f, 0.4f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.TabActive, 0.3f, 0.3f, 0.3f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.Button, 0.2f, 0.2f, 0.2f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.ButtonHovered, 0.4f, 0.4f, 0.4f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.ButtonActive, 0.5f, 0.5f, 0.5f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.FrameBg, 0.15f, 0.15f, 0.15f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.FrameBgHovered, 0.25f, 0.25f, 0.25f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.FrameBgActive, 0.35f, 0.35f, 0.35f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.CheckMark, 0.7f, 0.7f, 0.7f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.SliderGrab, 0.3f, 0.3f, 0.3f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.SliderGrabActive, 0.5f, 0.5f, 0.5f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.Header, 0.2f, 0.2f, 0.2f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.HeaderHovered, 0.3f, 0.3f, 0.3f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.HeaderActive, 0.4f, 0.4f, 0.4f, 1.0f);
+        ImGui.pushStyleColor(ImGuiCol.Separator, 0.4f, 0.4f, 0.4f, 1.0f);
+    }
+
+
     private int charToKey(char character) {
-        // Adjusted mapping with just relevant characters for simplification
         return switch (character) {
             case 'a' -> GLFW.GLFW_KEY_A;
             case 'b' -> GLFW.GLFW_KEY_B;
@@ -194,9 +249,7 @@ public class ClickImgui extends Screen {
             case '7' -> GLFW.GLFW_KEY_7;
             case '8' -> GLFW.GLFW_KEY_8;
             case '9' -> GLFW.GLFW_KEY_9;
-            case ' ' -> GLFW.GLFW_KEY_SPACE;
-            case GLFW.GLFW_KEY_ESCAPE -> GLFW.GLFW_KEY_ESCAPE;
-            default -> 0; // Default case for non-mapped characters
+            default -> GLFW.GLFW_KEY_UNKNOWN;
         };
     }
 }
