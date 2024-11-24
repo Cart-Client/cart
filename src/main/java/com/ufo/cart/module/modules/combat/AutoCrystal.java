@@ -8,8 +8,11 @@ import com.ufo.cart.module.Module;
 import com.ufo.cart.module.setting.Setting;
 import com.ufo.cart.module.setting.BooleanSetting;
 import com.ufo.cart.module.setting.NumberSetting;
-import com.ufo.cart.utils.math.*;
-import com.ufo.cart.utils.other.*;
+import com.ufo.cart.utils.other.BlockUtil;
+import com.ufo.cart.utils.other.CrystalUtil;
+import com.ufo.cart.utils.math.RandomUtil;
+import com.ufo.cart.utils.other.Mouse;
+import com.ufo.cart.utils.math.TargetUtil;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -26,50 +29,45 @@ import net.minecraft.util.math.Direction;
 import org.lwjgl.glfw.GLFW;
 
 public final class AutoCrystal extends Module implements TickListener, ItemUseListener {
-    private final NumberSetting field133;
-    private final NumberSetting field134;
-    private final NumberSetting field135;
-    private final NumberSetting field136;
-    private final BooleanSetting field137;
-    private final BooleanSetting field138;
-    private final BooleanSetting field139;
-    private final BooleanSetting field140;
-    private final NumberSetting field141;
-    private int field142;
-    private int field143;
+    private final NumberSetting placeDelay = new NumberSetting("Place Delay", 0.0, 20.0, 0.0, 1.0);
+    private final NumberSetting breakDelay = new NumberSetting("Break Delay", 0.0, 20.0, 0.0, 1.0);
+    private final NumberSetting placeChance = new NumberSetting("Place Chance", 0.0, 100.0, 100.0, 1.0);
+    private final NumberSetting breakChance = new NumberSetting("Break Chance", 0.0, 100.0, 100.0, 1.0);
+    private final BooleanSetting stopOnKill = new BooleanSetting("Stop on Kill", false);
+    private final BooleanSetting fakePunch = new BooleanSetting("Fake Punch", false);
+    private final BooleanSetting clickSimulation = new BooleanSetting("Click Simulation", false);
+    private final BooleanSetting damageTick = new BooleanSetting("Damage Tick", false);
+    private final NumberSetting particleChance = new NumberSetting("Particle Chance", 0.0, 100.0, 20.0, 1.0);
+
+    private int placeTimer = 0;
+    private int breakTimer = 0;
 
     public AutoCrystal() {
         super("Auto Crystal", "Automatically crystals fast for you", 0, Category.COMBAT);
-        this.field133 = new NumberSetting("Place Delay", 0.0, 20.0, 0.0, 1.0);
-        this.field134 = new NumberSetting("Break Delay", 0.0, 20.0, 0.0, 1.0);
-        this.field135 = new NumberSetting("Place Chance", 0.0, 100.0, 100.0, 1.0);
-        this.field136 = new NumberSetting("Break Chance", 0.0, 100.0, 100.0, 1.0);
-        this.field137 = new BooleanSetting("Stop on Kill", false);
-        this.field138 = new BooleanSetting("Fake Punch", false);
-        this.field139 = new BooleanSetting("Click Simulation", false);
-        this.field140 = new BooleanSetting("Damage Tick", false);
-        this.field141 = new NumberSetting("Particle Chance", 0.0, 100.0, 20.0, 1.0);
-        this.addSettings(new Setting[]{this.field133, this.field134, this.field135, this.field136, this.field137, this.field138, this.field139, this.field140, this.field141});
+        this.addSettings(new Setting[]{
+                placeDelay, breakDelay, placeChance, breakChance,
+                stopOnKill, fakePunch, clickSimulation, damageTick, particleChance
+        });
     }
 
-    private static boolean method123(final AbstractClientPlayerEntity abstractClientPlayerEntity) {
-        return abstractClientPlayerEntity.hurtTime >= 2;
+    private static boolean isRecentlyDamaged(AbstractClientPlayerEntity player) {
+        return player.hurtTime >= 2;
     }
 
-    private static boolean method124(final AbstractClientPlayerEntity abstractClientPlayerEntity) {
-        return !abstractClientPlayerEntity.isOnGround();
+    private static boolean isNotOnGround(AbstractClientPlayerEntity player) {
+        return !player.isOnGround();
     }
 
-    private static boolean method125(final AbstractClientPlayerEntity abstractClientPlayerEntity) {
-        return abstractClientPlayerEntity.getLastAttacker() == null;
+    private static boolean hasNoAttacker(AbstractClientPlayerEntity player) {
+        return player.getLastAttacker() == null;
     }
 
     @Override
     public void onEnable() {
         this.eventBus.registerPriorityListener(TickListener.class, this);
         this.eventBus.registerPriorityListener(ItemUseListener.class, this);
-        this.field142 = 0;
-        this.field143 = 0;
+        placeTimer = 0;
+        breakTimer = 0;
         super.onEnable();
     }
 
@@ -82,132 +80,93 @@ public final class AutoCrystal extends Module implements TickListener, ItemUseLi
 
     @Override
     public void onTick() {
-        if (this.mc.currentScreen != null) {
+        if (mc.currentScreen != null || mc.player.isUsingItem() || mc.crosshairTarget == null) {
             return;
         }
-        final boolean b = this.field142 != 0;
-        final boolean b2 = this.field143 != 0;
-        if (this.field137.getValue() && TargetUtil.isDeadNearby()) {
+
+        if (stopOnKill.getValue() && TargetUtil.isDeadNearby()) {
             return;
         }
-        final int method402 = RandomUtil.getRandom(1, 100);
-        if (b) {
-            --this.field142;
-        }
-        if (b2) {
-            --this.field143;
-        }
-        if (this.mc.currentScreen != null) {
+
+        if (damageTick.getValue() && isPlayerUnderAttack()) {
             return;
         }
-        if (this.mc.player.isUsingItem()) {
+
+        if (GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), 1) != 1) {
             return;
         }
-        if (this.field140.getValue() && this.method122()) {
+
+        if (mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL) {
             return;
         }
-        if (GLFW.glfwGetMouseButton(this.mc.getWindow().getHandle(), 1) != 1) {
-            return;
+
+        boolean canPlace = placeTimer == 0;
+        boolean canBreak = breakTimer == 0;
+
+        int chance = RandomUtil.getRandom(1, 100);
+
+        // Check for BlockHitResult
+        if (canPlace && chance <= placeChance.getValueInt() && mc.crosshairTarget.getType() == HitResult.Type.BLOCK) {
+            handlePlaceCrystal((BlockHitResult) mc.crosshairTarget);
         }
-        if (this.mc.player.getMainHandStack().getItem() != Items.END_CRYSTAL) {
-            return;
+
+        // Check for EntityHitResult
+        if (canBreak && chance <= breakChance.getValueInt() && mc.crosshairTarget.getType() == HitResult.Type.ENTITY) {
+            handleBreakCrystal((EntityHitResult) mc.crosshairTarget);
         }
-        final HitResult crosshairTarget = this.mc.crosshairTarget;
-        if (crosshairTarget instanceof final BlockHitResult blockHit) {
-            if (this.mc.crosshairTarget.getType() == HitResult.Type.BLOCK) {
-                if (!b && method402 <= this.field135.getValueInt() && (BlockUtil.isBlockType(blockHit.getBlockPos(), Blocks.OBSIDIAN) || (BlockUtil.isBlockType(blockHit.getBlockPos(), Blocks.BEDROCK) && CrystalUtil.hasNoEntityOnIt(blockHit.getBlockPos())))) {
-                    if (this.field139.getValue()) {
-                        Mouse.pressKeyDefaultDelay(1);
-                    }
-                    TargetUtil.placeBlock(blockHit, true);
-                    if (this.field138.getValue() && method402 <= this.field141.getValue() && CrystalUtil.hasNoEntityOnIt(blockHit.getBlockPos()) && blockHit.getSide() == Direction.UP) {
-                        this.mc.particleManager.addBlockBreakingParticles(blockHit.getBlockPos(), blockHit.getSide());
-                    }
-                    this.field142 = this.field133.getValueInt();
-                }
-                if (this.field138.getValue()) {
-                    if (!b2 && method402 <= this.field136.getValueInt()) {
-                        if (BlockUtil.isBlockType(blockHit.getBlockPos(), Blocks.OBSIDIAN) || BlockUtil.isBlockType(blockHit.getBlockPos(), Blocks.BEDROCK)) {
-                            return;
-                        }
-                        if (this.field139.getValue()) {
-                            if (BlockUtil.isBlockType(blockHit.getBlockPos(), Blocks.OBSIDIAN) || BlockUtil.isBlockType(blockHit.getBlockPos(), Blocks.BEDROCK)) {
-                                if (CrystalUtil.hasNoEntityOnIt(blockHit.getBlockPos())) {
-                                    Mouse.pressKeyDefaultDelay(0);
-                                }
-                            } else {
-                                Mouse.pressKeyDefaultDelay(0);
-                            }
-                        }
-                        this.mc.interactionManager.attackBlock(blockHit.getBlockPos(), blockHit.getSide());
-                        this.mc.player.swingHand(Hand.MAIN_HAND);
-                        this.mc.particleManager.addBlockBreakingParticles(blockHit.getBlockPos(), blockHit.getSide());
-                        this.mc.interactionManager.updateBlockBreakingProgress(blockHit.getBlockPos(), blockHit.getSide());
-                        this.field143 = this.field134.getValueInt();
-                    }
-                    if (!b && method402 <= this.field135.getValueInt() && b2 && this.field139.getValue()) {
-                        Mouse.pressKeyDefaultDelay(1);
-                    }
-                }
+
+        if (placeTimer > 0) {
+            placeTimer--;
+        }
+        if (breakTimer > 0) {
+            breakTimer--;
+        }
+    }
+
+    private void handlePlaceCrystal(BlockHitResult hitResult) {
+        if (hitResult.getType() != HitResult.Type.BLOCK) return;
+
+        if ((BlockUtil.isBlockType(hitResult.getBlockPos(), Blocks.OBSIDIAN) ||
+                BlockUtil.isBlockType(hitResult.getBlockPos(), Blocks.BEDROCK)) &&
+                CrystalUtil.hasNoEntityOnIt(hitResult.getBlockPos())) {
+
+            if (clickSimulation.getValue()) {
+                Mouse.pressKeyDefaultDelay(1);
             }
-            if (this.mc.crosshairTarget.getType() == HitResult.Type.MISS && this.field138.getValue()) {
-                if (!b2 && method402 <= this.field136.getValueInt()) {
-                    if (this.mc.interactionManager.hasLimitedAttackSpeed()) {
-                        this.mc.attackCooldown = 10;
-                    }
-                    if (this.field139.getValue()) {
-                        Mouse.pressKeyDefaultDelay(0);
-                    }
-                    this.mc.player.resetLastAttackedTicks();
-                    this.mc.player.swingHand(Hand.MAIN_HAND);
-                    this.field143 = this.field134.getValueInt();
-                }
-                if (!b && method402 <= this.field135.getValueInt() && b2 && this.field139.getValue()) {
-                    Mouse.pressKeyDefaultDelay(1);
-                }
+
+            TargetUtil.placeBlock(hitResult, true);
+
+            if (fakePunch.getValue() && RandomUtil.getRandom(1, 100) <= particleChance.getValue() &&
+                    hitResult.getSide() == Direction.UP) {
+                mc.particleManager.addBlockBreakingParticles(hitResult.getBlockPos(), hitResult.getSide());
             }
+            placeTimer = placeDelay.getValueInt();
         }
-        final int method403 = RandomUtil.getRandom(1, 100);
-        final HitResult crosshairTarget2 = this.mc.crosshairTarget;
-        if (crosshairTarget2 instanceof final EntityHitResult entityHitResult) {
-            if (!b2 && method403 <= this.field136.getValueInt()) {
-                final Entity entity = entityHitResult.getEntity();
-                if (!this.field138.getValue() && !(entity instanceof EndCrystalEntity) && !(entity instanceof SlimeEntity)) {
-                    return;
-                }
-                if (this.field139.getValue()) {
-                    Mouse.pressKeyDefaultDelay(0);
-                }
-                TargetUtil.attack(entity, true);
-                this.field143 = this.field134.getValueInt();
-            }
+    }
+
+    private void handleBreakCrystal(EntityHitResult hitResult) {
+        if (!(hitResult.getEntity() instanceof EndCrystalEntity || hitResult.getEntity() instanceof SlimeEntity)) return;
+
+        if (clickSimulation.getValue()) {
+            Mouse.pressKeyDefaultDelay(0);
         }
+
+        TargetUtil.attack(hitResult.getEntity(), true);
+        breakTimer = breakDelay.getValueInt();
+    }
+
+    private boolean isPlayerUnderAttack() {
+        LivingEntity attacker = mc.player.getAttacking();
+        return !(attacker instanceof PlayerEntity);
     }
 
     @Override
     public void onItemUse(final ItemUseEvent event) {
-        if (this.mc.player.getMainHandStack().getItem() == Items.END_CRYSTAL) {
-            final HitResult crosshairTarget = this.mc.crosshairTarget;
-            if (crosshairTarget instanceof final BlockHitResult blockHitResult) {
-                if (this.mc.crosshairTarget.getType() == HitResult.Type.BLOCK && (BlockUtil.isBlockType(blockHitResult.getBlockPos(), Blocks.OBSIDIAN) || BlockUtil.isBlockType(blockHitResult.getBlockPos(), Blocks.BEDROCK))) {
-                    event.cancelEvent();
-                }
-            }
+        if (mc.player.getMainHandStack().getItem() == Items.END_CRYSTAL &&
+                mc.crosshairTarget instanceof BlockHitResult hitResult &&
+                (BlockUtil.isBlockType(hitResult.getBlockPos(), Blocks.OBSIDIAN) ||
+                        BlockUtil.isBlockType(hitResult.getBlockPos(), Blocks.BEDROCK))) {
+            event.cancelEvent();
         }
-    }
-
-    private boolean method122() {
-        //if (this.mc.world.getPlayers().parallelStream().filter(this::method127).filter(this::method126)/*.filter(Class41::method125).filter(Class41::method124).anyMatch(Class41::method123)*/) {
-        final LivingEntity getAttacking = this.mc.player.getAttacking();
-        return !(getAttacking instanceof PlayerEntity playerEntity);
-        //}
-    }
-
-    private boolean method126(final AbstractClientPlayerEntity abstractClientPlayerEntity) {
-        return abstractClientPlayerEntity.squaredDistanceTo(this.mc.player) < 36.0;
-    }
-
-    private boolean method127(final AbstractClientPlayerEntity abstractClientPlayerEntity) {
-        return abstractClientPlayerEntity != this.mc.player;
     }
 }
