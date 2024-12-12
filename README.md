@@ -1,4 +1,3 @@
-<div align="center">
 
 # cart client
 man we on duh comethazine 😈
