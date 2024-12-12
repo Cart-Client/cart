@@ -3,7 +3,8 @@
   "package": "com.ufo.cart.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "MixinKeyboard"
+    "MixinKeyboard",
+    "MixinScreen"
   ],
   "injectors": {
     "defaultRequire": 1

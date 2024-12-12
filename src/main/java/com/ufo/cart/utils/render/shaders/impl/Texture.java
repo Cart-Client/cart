@@ -7,7 +7,7 @@ public class Texture {
     final Identifier id;
 
     public Texture(String path) {
-        id = Identifier.of("nexus", validatePath(path));
+        id = Identifier.of("cart", validatePath(path));
     }
 
     public Texture(Identifier i) {

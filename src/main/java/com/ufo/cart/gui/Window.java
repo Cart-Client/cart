@@ -5,7 +5,6 @@ import com.ufo.cart.gui.components.ModuleButton;
 import com.ufo.cart.gui.components.settings.RenderableSetting;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
-import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -23,6 +22,7 @@ public final class Window {
     private final Category category;
     public boolean dragging, extended;
     int dragX, dragY;
+
     public Window(int x, int y, int width, int height, Category category) {
         this.x = x;
         this.y = y;
@@ -33,17 +33,17 @@ public final class Window {
         this.category = category;
 
         int offset = height;
-        for(Module module : Client.INSTANCE.getModuleManager().getModulesInCategory(category)) {
+        for (Module module : Client.INSTANCE.getModuleManager().getModulesInCategory(category)) {
             moduleButtons.add(new ModuleButton(this, module, offset));
             offset += height;
         }
-
     }
 
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(x, y, x + width, y + height, ThemeUtils.getMainColor(255).darker().getRGB());
-        MatrixStack matrixStack = context.getMatrices();
 
+        context.fill(x, y, x + width, y + height, new Color(0, 0, 0, 175).getRGB());
+
+        MatrixStack matrixStack = context.getMatrices();
         matrixStack.push();
 
         float scale = 2.0f;
@@ -54,18 +54,24 @@ public final class Window {
 
         context.drawCenteredTextWithShadow(mc.textRenderer, category.name, scaledX, scaledY, Color.WHITE.getRGB());
 
-        context.drawText(mc.textRenderer, extended ? "+" : "-", scaledXRight, scaledY, Color.white.getRGB(), true);
+        context.drawText(mc.textRenderer, extended ? "+" : "-", scaledXRight, scaledY, Color.WHITE.getRGB(), true);
 
         matrixStack.pop();
-        if(!extended) return;
 
-        for(ModuleButton moduleButton : moduleButtons) {
+        if (!extended) return;
+
+        for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.render(context, mouseX, mouseY, delta);
         }
+
+        context.fill(x - 2, y - 2, x + width + 2, y, Color.WHITE.getRGB());
+        context.fill(x - 2, y, x, y + height, Color.WHITE.getRGB());
+        context.fill(x + width, y, x + width + 2, y + height, Color.WHITE.getRGB());
+        context.fill(x - 2, y + height, x + width + 2, y + height + 2, Color.WHITE.getRGB());
     }
 
     public void mouseClicked(double mouseX, double mouseY, int button) {
-        if(isHovered(mouseX, mouseY)) {
+        if (isHovered(mouseX, mouseY)) {
             switch (button) {
                 case 0: {
                     dragging = true;
@@ -80,13 +86,13 @@ public final class Window {
             }
         }
 
-        for(ModuleButton moduleButton : moduleButtons) {
+        for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.mouseClicked(mouseX, mouseY, button);
         }
     }
 
     public void mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        for(ModuleButton moduleButton : moduleButtons) {
+        for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
         }
     }
@@ -94,12 +100,12 @@ public final class Window {
     public void updateButtons() {
         int offset = height;
 
-        for(ModuleButton moduleButton : moduleButtons) {
+        for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.offset = offset;
             offset += height;
 
-            if(moduleButton.extended) {
-                for(RenderableSetting renderableSetting : moduleButton.settings) {
+            if (moduleButton.extended) {
+                for (RenderableSetting renderableSetting : moduleButton.settings) {
                     offset += height;
                 }
             }
@@ -107,11 +113,11 @@ public final class Window {
     }
 
     public void mouseReleased(double mouseX, double mouseY, int button) {
-        if(button == 0 && dragging) {
+        if (button == 0 && dragging) {
             dragging = false;
         }
 
-        for(ModuleButton moduleButton : moduleButtons) {
+        for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.mouseReleased(mouseX, mouseY, button);
         }
     }
@@ -145,7 +151,7 @@ public final class Window {
     }
 
     public void updatePosition(double mouseX, double mouseY) {
-        if(dragging) {
+        if (dragging) {
             x = (int) (mouseX - dragX);
             y = (int) (mouseY - dragY);
         }

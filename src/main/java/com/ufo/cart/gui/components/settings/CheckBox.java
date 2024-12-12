@@ -21,7 +21,6 @@ public final class CheckBox extends RenderableSetting {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        
         TextRenderer.drawMinecraftText(
                 setting.getName(),
                 context,
@@ -40,12 +39,20 @@ public final class CheckBox extends RenderableSetting {
         context.fill(boxX1, boxY1, boxX2, boxY2, Color.darkGray.getRGB());
 
 
+        int centerX = boxX1 + (boxX2 - boxX1) / 2;
+        int centerY = boxY1 + (boxY2 - boxY1) / 2;
+
+
+        int checkmarkOffsetX = centerX - 5;
+        int checkmarkOffsetY = centerY - 6;
+
+
         if (setting.getValue()) {
             TextRenderer.drawMinecraftText(
                     "✔",
                     context,
-                    boxX1 + (boxX2 - boxX1) / 2 - 4,
-                    boxY1 + (boxY2 - boxY1) / 2 - 6,
+                    checkmarkOffsetX,
+                    checkmarkOffsetY,
                     ThemeUtils.getMainColor(255).getRGB()
             );
         }

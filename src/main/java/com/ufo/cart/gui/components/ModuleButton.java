@@ -61,8 +61,9 @@ public final class ModuleButton {
     }
 
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(parent.getX(), parent.getY() + offset, parent.getX() + parent.getWidth(), parent.getY() + parent.getHeight() + offset, new Color(35, 35, 35, 175).getRGB());
-        TextRenderer.drawCenteredMinecraftText(module.getName(), context, parent.getX() + (parent.getWidth() / 2), parent.getY() + offset + 8, module.isEnabled() ? ThemeUtils.getMainColor(255).getRGB() : Color.WHITE.getRGB());
+        Color backgroundColor = module.isEnabled() ? ThemeUtils.getMainColor(255) : new Color(35, 35, 35, 175);
+        context.fill(parent.getX(), parent.getY() + offset, parent.getX() + parent.getWidth(), parent.getY() + parent.getHeight() + offset, backgroundColor.getRGB());
+        TextRenderer.drawCenteredMinecraftText(module.getName(), context, parent.getX() + (parent.getWidth() / 2), parent.getY() + offset + 8, Color.WHITE.getRGB());
 
         if (isHovered(mouseX, mouseY)) {
             context.fill(parent.getX(), parent.getY() + offset, parent.getX() + parent.getWidth(), parent.getY() + parent.getHeight() + offset, new Color(255, 255, 255, 10).getRGB());
