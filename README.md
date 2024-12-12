@@ -221,5 +221,5 @@ public void addModules() {
 
 ---
 
-This documentation should now feel less like a chore and more like a celebration. Happy coding, and may your modules be buggy only in the best possible ways!
+This documentation should help you boy.
 
