@@ -6,7 +6,6 @@ import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.modules.misc.CrystalOptimizer;
 import com.ufo.cart.event.EventListener;
 import com.ufo.cart.module.modules.player.AutoSprint;
-import com.ufo.cart.module.modules.render.ESP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,11 +60,11 @@ public final class ModuleManager implements EventListener {
     }
 
     public void addModules() {
+
         add(new ClickGUI());
         add(new CrystalOptimizer());
         add(new Theme());
         add(new AutoSprint());
-        add(new ESP());
     }
 
     public void add(Module module) {
