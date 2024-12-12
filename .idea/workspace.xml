@@ -5,8 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d4c25ef-29ee-4fae-99a2-bbdd72ae1618" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ufo/cart/event/events/Render3DEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ufo/cart/event/events/Render3DEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ufo/cart/event/listeners/Render3DListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ufo/cart/event/listeners/Render3DListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ufo/cart/module/modules/render/ESP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ufo/cart/module/modules/render/ESP.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +41,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Gradle.cart [:net.fabricmc.devlaunchinjector.Main.main()].executor": "Run",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "Reverting in main"
   }
 }]]></component>
   <component name="RunManager" selected="Application.Minecraft Client" />
