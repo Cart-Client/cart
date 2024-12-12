@@ -1,8 +1,13 @@
 package com.ufo.cart.module.modules.render;
 import com.ufo.cart.event.events.Render3DEvent;
 import com.ufo.cart.event.listeners.Render3DListener;
+import com.ufo.cart.event.listeners.TickListener;
+import com.ufo.cart.gui.colors.Color;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
+import com.ufo.cart.utils.render.Render3D;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,7 +17,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import java.awt.*;
 
+import static com.ufo.cart.Client.getInstance;
+
 public final class ESP extends Module implements Render3DListener {
+    private static final MinecraftClient MC = MinecraftClient.getInstance();
+
     public ESP() {
         super("ESP", "Renders players through walls.", 0, Category.RENDER);
     }
@@ -26,37 +35,14 @@ public final class ESP extends Module implements Render3DListener {
     @Override
     public void onDisable() {
         this.eventBus.unregister(Render3DListener.class, this);
-        super.onDisable();
+        super.onEnable();
     }
 
-
     @Override
-    public void onRender3D(Render3DEvent event) {
-        MatrixStack matrices = event.matrices;
-        assert mc.world != null;
-        for (PlayerEntity player : mc.world.getPlayers()) {
-            if (player != mc.player) {
-                Camera cam = mc.getBlockEntityRenderDispatcher().camera;
-                if (cam != null) {
-                    matrices.push();
-                    Vec3d vec = cam.getPos();
-                    matrices.translate(-vec.x, -vec.y, -vec.z);
-                }
-
-                double xPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevX, player.getX());
-                double yPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevY, player.getY());
-                double zPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevZ, player.getZ());
-
-                RenderUtils.renderFilledBox(
-                        event.matrices,
-                        (float) xPos - player.getWidth() / 2,
-                        (float) yPos,
-                        (float) zPos - player.getWidth() / 2,
-                        (float) xPos + player.getWidth() / 2,
-                        (float) yPos + player.getHeight(),
-                        (float) zPos + player.getWidth() / 2,
-                        Color.white);
-                matrices.pop();
+    public void onRender(Render3DEvent event) {
+        for (AbstractClientPlayerEntity entity : MC.world.getPlayers()) {
+            if (entity != MC.player) {
+                Render3D.draw3DBox(event.GetMatrix(), entity.getBoundingBox(), Color.convertHextoRGB("FFFFFF"));
             }
         }
     }

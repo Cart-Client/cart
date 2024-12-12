@@ -1,28 +1,66 @@
+/*
+ * Aoba Hacked Client
+ * Copyright (C) 2019-2024 coltonk9043
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.ufo.cart.event.events;
 
-import com.ufo.cart.event.Event;
-import com.ufo.cart.event.EventListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ufo.cart.event.listeners.AbstractListener;
 import com.ufo.cart.event.listeners.Render3DListener;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 
-import java.util.ArrayList;
+public class Render3DEvent extends AbstractEvent {
+	MatrixStack matrices;
+	Frustum frustum;
+	RenderTickCounter renderTickCounter;
 
-public class Render3DEvent extends Event {
-    public MatrixStack matrices;
-    public float delta;
+	public MatrixStack GetMatrix() {
+		return matrices;
+	}
 
-    public Render3DEvent(final MatrixStack matrices, final float delta) {
-        this.matrices = matrices;
-        this.delta = delta;
-    }
+	public RenderTickCounter getRenderTickCounter() {
+		return renderTickCounter;
+	}
 
-    @Override
-    public void callListeners(final ArrayList<EventListener> listeners) {
-        listeners.stream().filter(listener -> listener instanceof Render3DListener).map(listener -> (Render3DListener) listener).forEach(listener -> listener.onRender3D(this));
-    }
+	public Frustum getFrustum() {
+		return frustum;
+	}
 
-    @Override
-    public Class<?> getClazz() {
-        return Render3DListener.class;
-    }
+	public Render3DEvent(MatrixStack matrix4f, Frustum frustum, RenderTickCounter renderTickCounter) {
+		this.matrices = matrix4f;
+		this.renderTickCounter = renderTickCounter;
+		this.frustum = frustum;
+	}
+
+	@Override
+	public void Fire(ArrayList<? extends AbstractListener> listeners) {
+		for (AbstractListener listener : List.copyOf(listeners)) {
+			Render3DListener renderListener = (Render3DListener) listener;
+			renderListener.onRender(this);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<Render3DListener> GetListenerClassType() {
+		return Render3DListener.class;
+	}
 }

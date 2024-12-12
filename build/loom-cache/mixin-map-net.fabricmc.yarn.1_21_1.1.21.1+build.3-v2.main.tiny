@@ -1,0 +1,4 @@
+v1	named	intermediary
+FIELD	com/ufo/cart/mixin/MinecraftClientMixin	Lnet/minecraft/client/util/Window;	window	field_1704
+FIELD	com/ufo/cart/mixin/MixinKeyboard	Lnet/minecraft/client/MinecraftClient;	client	field_1678
+FIELD	com/ufo/cart/mixin/MixinScreen	Lnet/minecraft/client/MinecraftClient;	client	field_22787
