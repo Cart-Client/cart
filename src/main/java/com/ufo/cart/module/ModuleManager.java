@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ModuleManager implements EventListener {
-    private List<Module> modules = new ArrayList<>();S
+    private List<Module> modules = new ArrayList<>();
 
     public ModuleManager() {
 
