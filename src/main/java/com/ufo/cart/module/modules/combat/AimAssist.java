@@ -4,9 +4,9 @@ import com.ufo.cart.event.listeners.TickListener;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
 import com.ufo.cart.module.setting.NumberSetting;
-import com.ufo.cart.utils.other.FindClosestPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
+import com.ufo.cart.utils.other.PlayerUtil;
 
 public class AimAssist extends Module implements TickListener {
 
@@ -34,8 +34,9 @@ public class AimAssist extends Module implements TickListener {
 
     @Override
     public void onTick() {
+
         if (mc.player != null && mc.world != null) {
-            PlayerEntity closestPlayer = FindClosestPlayer.findClosest(mc.player, Range.getValue());
+            PlayerEntity closestPlayer = PlayerUtil.findClosest(mc.player, Range.getValue());
 
             if (closestPlayer != null) {
                 double diffX = closestPlayer.getX() - mc.player.getX();
