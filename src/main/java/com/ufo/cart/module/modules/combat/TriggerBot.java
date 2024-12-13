@@ -9,7 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.AxeItem;
-import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -18,6 +17,7 @@ import net.minecraft.client.network.ClientPlayerInteractionManager;
 public class TriggerBot extends Module implements TickListener {
 
     private final BooleanSetting swordOnly = new BooleanSetting("Sword Only", false);
+
     private int attackCooldown = 0;
 
     public TriggerBot() {
