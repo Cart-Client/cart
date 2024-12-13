@@ -21,6 +21,7 @@ public final class AutoSprint extends Module implements TickListener {
         this.eventBus.unregister(TickListener.class, this);
         super.onDisable();
     }
+
     @Override
     public void onTick() {
         if (!omni.getValue()) {
