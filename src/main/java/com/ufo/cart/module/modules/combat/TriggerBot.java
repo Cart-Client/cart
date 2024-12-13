@@ -5,11 +5,10 @@ import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
 import com.ufo.cart.module.setting.BooleanSetting;
 import com.ufo.cart.module.setting.RangeSetting;
+import com.ufo.cart.module.setting.NumberSetting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.AxeItem;
+import net.minecraft.item.*;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -21,12 +20,13 @@ public class TriggerBot extends Module implements TickListener {
 
     private final BooleanSetting swordOnly = new BooleanSetting("Sword Only", false);
     private final RangeSetting attackDelay = new RangeSetting("Attack Delay", 0, 20, 0, 1, 1);
+    private final NumberSetting maceDelay = new NumberSetting("Mace Delay", 10.0, 0.0, 50.0, 1.0);
     private int attackCooldown = 0;
-    private final Random random = new Random(); // declare random as final so you cant recrate dumbo
+    private final Random random = new Random();
 
     public TriggerBot() {
         super("Trigger Bot", "Automatically hits targets", 0, Category.COMBAT);
-        addSettings(swordOnly, attackDelay);
+        addSettings(swordOnly, attackDelay, maceDelay);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TriggerBot extends Module implements TickListener {
                 int delay = 0;
                 int attackDelayInterval = 0;
 
-                if(attackDelay.getValueMaxInt() != attackDelay.getValueMinInt()) {
+                if (attackDelay.getValueMaxInt() != attackDelay.getValueMinInt()) {
                     attackDelayInterval = random.nextInt(attackDelay.getValueMaxInt() - attackDelay.getValueMinInt());
                 }
 
@@ -70,8 +70,11 @@ public class TriggerBot extends Module implements TickListener {
                     }
                     delay = 16 + attackDelayInterval;
                 } else {
-                    if (heldItem instanceof SwordItem || heldItem instanceof AxeItem) {
-                        delay =  16 + attackDelayInterval; // exmaple dleyas
+                    if (heldItem instanceof MaceItem) {
+                        delay = (int) (maceDelay.getValue() + attackDelayInterval);
+                    }
+                    else if (heldItem instanceof SwordItem || heldItem instanceof AxeItem) {
+                        delay = 16 + attackDelayInterval;
                     } else {
                         delay = 4 + attackDelayInterval;
                     }
