@@ -62,7 +62,6 @@ public class TriggerBot extends Module implements TickListener {
 
                 if(attackDelay.getValueMaxInt() != attackDelay.getValueMinInt()) {
                     attackDelayInterval = random.nextInt(attackDelay.getValueMaxInt() - attackDelay.getValueMinInt());
-
                 }
 
                 if (swordOnly.getValue()) {
