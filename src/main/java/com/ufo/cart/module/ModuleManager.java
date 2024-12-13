@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ModuleManager implements EventListener {
-    private List<Module> modules = new ArrayList<>();
-    public Reach reach = new Reach();
+    private List<Module> modules = new ArrayList<>();S
 
     public ModuleManager() {
 
