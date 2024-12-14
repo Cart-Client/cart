@@ -9,6 +9,7 @@ import com.ufo.cart.module.modules.misc.CrystalOptimizer;
 import com.ufo.cart.event.EventListener;
 import com.ufo.cart.module.modules.player.AutoSprint;
 import com.ufo.cart.module.modules.player.JumpReset;
+import com.ufo.cart.module.modules.render.FullBright;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,7 @@ public final class ModuleManager implements EventListener {
         add(new TriggerBot());
         add(new JumpReset());
         add(new AimAssist());
+        add(new FullBright());
     }
 
     public void add(Module module) {
