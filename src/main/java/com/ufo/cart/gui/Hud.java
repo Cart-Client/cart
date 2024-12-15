@@ -3,14 +3,16 @@ package com.ufo.cart.gui;
 import com.ufo.cart.Client;
 import com.ufo.cart.module.Module;
 import com.ufo.cart.module.modules.render.ArrayListModule;
+import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 
 import com.ufo.cart.utils.render.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 
+import java.awt.*;
 import java.util.Objects;
-
+import com.ufo.cart.module.modules.client.Theme;
 import static com.ufo.cart.Client.mc;
 
 public class Hud {
@@ -34,8 +36,8 @@ public class Hud {
             int xOffset = 10;
 
             for (Module module : enabledModules) {
-                TextRenderer.drawMinecraftText(module.getName(), context, xOffset, yOffset, 0xffffff);
-                yOffset += 17;
+                TextRenderer.drawMinecraftText(module.getName(), context, xOffset, yOffset, ThemeUtils.getMainColor(255).getRGB(), true);
+                yOffset += 20;
             }
         }
     }

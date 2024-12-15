@@ -20,7 +20,7 @@ public final class ModeBox extends RenderableSetting {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        TextRenderer.drawMinecraftText(setting.getName() + ": " + setting.getMode(), context, parentX() + 6, (parentY() + parentOffset() + offset) + 6, Color.WHITE.getRGB());
+        TextRenderer.drawMinecraftText(setting.getName() + ": " + setting.getMode(), context, parentX() + 6, (parentY() + parentOffset() + offset) + 6, Color.WHITE.getRGB(), true);
     }
 
     @Override

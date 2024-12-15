@@ -30,7 +30,7 @@ public class RangeSlider extends RenderableSetting {
         double offsetXMax = (setting.getValueMax() - setting.getMin()) / range * parentWidth();
         matrices.fill(parentX() + (int) offsetXMin, parentY() + offset + parentOffset(), parentX() + (int) offsetXMax, parentY() + offset + parentOffset() + parentHeight(), ThemeUtils.getMainColor(255).darker().getRGB());
 
-        TextRenderer.drawMinecraftText(setting.getName() + ": " + setting.getValueMin() + " - " + setting.getValueMax(), matrices, parentX() + 6, (parentY() + offset + parentOffset()) + 6, Color.white.getRGB());
+        TextRenderer.drawMinecraftText(setting.getName() + ": " + setting.getValueMin() + " - " + setting.getValueMax(), matrices, parentX() + 6, (parentY() + offset + parentOffset()) + 6, Color.white.getRGB(), true);
     }
 
     private void slide(double mouseX) {

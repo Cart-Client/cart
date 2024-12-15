@@ -26,7 +26,8 @@ public final class CheckBox extends RenderableSetting {
                 context,
                 parentX() + 6,
                 parentY() + parentOffset() + offset + 6,
-                Color.WHITE.getRGB()
+                Color.WHITE.getRGB(),
+                true
         );
 
 
@@ -53,7 +54,8 @@ public final class CheckBox extends RenderableSetting {
                     context,
                     checkmarkOffsetX,
                     checkmarkOffsetY,
-                    ThemeUtils.getMainColor(255).getRGB()
+                    ThemeUtils.getMainColor(255).getRGB(),
+                    true
             );
         }
     }
