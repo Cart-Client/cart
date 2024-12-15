@@ -19,7 +19,6 @@ public class Hud {
     private static final Class<? extends Module> ArrayList = ArrayListModule.class ;
 
     public static void render(RenderTickCounter tickDelta, DrawContext context, MatrixStack matrices) {
-        // rendar logic
     }
 
     public static void renderArrayList(RenderTickCounter tickDelta, DrawContext context, MatrixStack matrices) {
@@ -32,15 +31,15 @@ public class Hud {
                 return Integer.compare(width2, width1);
             });
 
-            int yOffset = 10;
-            int xOffset = 10;
+            int yOffset = 5;
+            int xOffset = 5;
 
             for (Module module : enabledModules) {
-                int width = mc.textRenderer.getWidth(module.getName()) * 2;
-                context.fill(xOffset - 2, yOffset - 5, xOffset + width + 2, yOffset + 20, new Color(0, 0, 0, 150).getRGB());
-                context.fill(xOffset - 4, yOffset - 5, xOffset - 4 + 2, yOffset + 20, ThemeUtils.getMainColor(255).getRGB());
+                int width = mc.textRenderer.getWidth(module.getName());
+                context.fill(xOffset - 1, yOffset - 2, xOffset + width + 1, yOffset + 10, new Color(0, 0, 0, 150).getRGB());
+                context.fill(xOffset - 2, yOffset - 2, xOffset, yOffset + 10, ThemeUtils.getMainColor(255).getRGB());
                 TextRenderer.drawMinecraftText(module.getName(), context, xOffset, yOffset, ThemeUtils.getMainColor(255).getRGB(), true);
-                yOffset += 25;
+                yOffset += 12;
             }
         }
     }
