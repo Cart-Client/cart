@@ -12,6 +12,7 @@
   },
   "client": [
     "HandledScreenMixin",
+    "InGameHudMixin",
     "MinecraftClientAccessor",
     "MinecraftClientMixin",
     "MouseHandlerAccessor",

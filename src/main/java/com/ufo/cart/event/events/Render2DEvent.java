@@ -4,14 +4,15 @@ import com.ufo.cart.event.Event;
 import com.ufo.cart.event.EventListener;
 import com.ufo.cart.event.listeners.Render2DListener;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 
 import java.util.ArrayList;
 
 public class Render2DEvent extends Event {
     public DrawContext ctx;
-    public float delta;
+    public RenderTickCounter delta;
 
-    public Render2DEvent(final DrawContext context, final float delta) {
+    public Render2DEvent(final DrawContext context, final RenderTickCounter delta) {
         this.ctx = context;
         this.delta = delta;
     }

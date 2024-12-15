@@ -11,6 +11,7 @@ import com.ufo.cart.event.EventListener;
 import com.ufo.cart.module.modules.player.AutoSprint;
 import com.ufo.cart.module.modules.player.JumpReset;
 import com.ufo.cart.module.modules.render.FullBright;
+import com.ufo.cart.module.modules.render.ArrayListModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,7 @@ public final class ModuleManager implements EventListener {
         add(new AimAssist());
         add(new FullBright());
         add(new Reach());
+        add(new ArrayListModule());
     }
 
     public void add(Module module) {

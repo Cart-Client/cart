@@ -19,7 +19,7 @@ public final class EventBus {
         if (eventBus != null) eventBus.callListeners(event);
     }
 
-    private void callListeners(final Event event) {
+    public void callListeners(final Event event) {
         final ArrayList<PriorityListener> priorityListeners = this.listeners.get(event.getClazz());
         if (priorityListeners == null || priorityListeners.isEmpty()) return;
 
