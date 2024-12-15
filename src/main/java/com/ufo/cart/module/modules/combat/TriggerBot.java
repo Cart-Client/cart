@@ -47,6 +47,7 @@ public class TriggerBot extends Module implements TickListener {
             return;
         }
 
+        // Check if attack cooldown is active
         if (attackCooldown > 0) {
             attackCooldown--;
             return;
@@ -57,6 +58,11 @@ public class TriggerBot extends Module implements TickListener {
 
             if (target instanceof PlayerEntity && target.isAlive() && target != mc.player) {
                 Item heldItem = mc.player.getMainHandStack().getItem();
+
+                if (mc.player.getAttackCooldownProgress(1.0F) < 1.0F) {
+                    return;
+                }
+
                 int delay = 0;
                 int attackDelayInterval = 0;
 
@@ -68,20 +74,21 @@ public class TriggerBot extends Module implements TickListener {
                     if (!(heldItem instanceof SwordItem)) {
                         return;
                     }
-                    delay = 16 + attackDelayInterval;
+                    delay = (int) (mc.player.getAttackCooldownProgress(1.0F) + attackDelayInterval);
                 } else {
                     if (heldItem instanceof MaceItem) {
                         delay = (int) (maceDelay.getValue() + attackDelayInterval);
-                    }
-                    else if (heldItem instanceof SwordItem || heldItem instanceof AxeItem) {
-                        delay = 16 + attackDelayInterval;
+                    } else if (heldItem instanceof SwordItem || heldItem instanceof AxeItem) {
+                        delay = mc.attackCooldown + attackDelayInterval;
                     } else {
-                        delay = 4 + attackDelayInterval;
+                        delay = (int) (mc.player.getAttackCooldownProgress(1.0F) + attackDelayInterval);
                     }
                 }
 
                 attackCooldown = delay;
+
                 ClientPlayerInteractionManager interactionManager = mc.interactionManager;
+                assert interactionManager != null;
                 interactionManager.attackEntity(mc.player, target);
                 mc.player.swingHand(Hand.MAIN_HAND);
             }

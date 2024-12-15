@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MixinKeyboard",
-    "MixinScreen"
+    "MixinScreen",
+    "ReachMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -13,6 +14,7 @@
     "HandledScreenMixin",
     "MinecraftClientAccessor",
     "MinecraftClientMixin",
-    "MouseHandlerAccessor"
+    "MouseHandlerAccessor",
+    "ReachMixin"
   ]
 }
