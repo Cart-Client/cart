@@ -6,16 +6,20 @@ import com.ufo.cart.module.modules.render.ArrayListModule;
 import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
+
+import com.ufo.cart.utils.render.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 
 import java.awt.*;
 import java.util.Objects;
+import com.ufo.cart.module.modules.client.Theme;
 import static com.ufo.cart.Client.mc;
 
 public class Hud {
-    private static final Class<? extends Module> ArrayList = ArrayListModule.class;
+    private static final Class<? extends Module> ArrayList = ArrayListModule.class ;
 
     public static void render(RenderTickCounter tickDelta, DrawContext context, MatrixStack matrices) {
+        // rendar logic
     }
 
     public static void renderArrayList(RenderTickCounter tickDelta, DrawContext context, MatrixStack matrices) {
@@ -30,34 +34,13 @@ public class Hud {
 
             int yOffset = 10;
             int xOffset = 10;
-            int lineHeight = mc.textRenderer.fontHeight + 4;
-            int padding = 5;
-            int totalHeight = enabledModules.size() * lineHeight + padding * 2;
 
-            int longestWidth = 0;
             for (Module module : enabledModules) {
-                int width = mc.textRenderer.getWidth(module.getName());
-                if (width > longestWidth) {
-                    longestWidth = width;
-                }
-            }
-
-            int totalWidth = longestWidth + padding * 2;
-
-
-            context.fill(xOffset - padding, yOffset - padding, xOffset + totalWidth, yOffset + totalHeight - padding, new Color(0, 0, 0, 150).getRGB());
-
-            
-            int borderColor = ThemeUtils.getMainColor(255).getRGB();
-            context.fill(xOffset - padding, yOffset - padding, xOffset - padding + 1, yOffset + totalHeight - padding, borderColor);
-            context.fill(xOffset + totalWidth - 1, yOffset - padding, xOffset + totalWidth, yOffset + totalHeight - padding, borderColor);
-            context.fill(xOffset - padding, yOffset - padding, xOffset + totalWidth, yOffset - padding + 1, borderColor); 
-            context.fill(xOffset - padding, yOffset + totalHeight - padding - 1, xOffset + totalWidth, yOffset + totalHeight - padding, borderColor); 
-            for (Module module : enabledModules) {
-                int textColor = ThemeUtils.getMainColor(255).getRGB();
-
-                context.drawText(mc.textRenderer, module.getName(), xOffset + padding, yOffset + padding, textColor, true);
-                yOffset += lineHeight;
+                int width = mc.textRenderer.getWidth(module.getName()) * 2;
+                context.fill(xOffset - 2, yOffset - 5, xOffset + width + 2, yOffset + 20, new Color(0, 0, 0, 150).getRGB());
+                context.fill(xOffset - 4, yOffset - 5, xOffset - 4 + 2, yOffset + 20, ThemeUtils.getMainColor(255).getRGB());
+                TextRenderer.drawMinecraftText(module.getName(), context, xOffset, yOffset, ThemeUtils.getMainColor(255).getRGB(), true);
+                yOffset += 25;
             }
         }
     }
