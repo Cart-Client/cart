@@ -16,6 +16,7 @@
     "MinecraftClientAccessor",
     "MinecraftClientMixin",
     "MouseHandlerAccessor",
-    "ReachMixin"
+    "ReachMixin",
+    "Render3DMixin"
   ]
 }
