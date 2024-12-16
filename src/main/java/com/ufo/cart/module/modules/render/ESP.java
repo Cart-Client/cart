@@ -36,28 +36,30 @@ public class ESP extends Module implements Render3DListener {
         if (mc.world != null && mc.player != null) {
             for (PlayerEntity player : mc.world.getPlayers()) {
                 if (player != mc.player) {
-                    Camera cam = mc.getBlockEntityRenderDispatcher().camera;
-                    if (cam != null) {
-                        MatrixStack matrices = event.matrices;
-                        matrices.push();
-                        Vec3d vec = cam.getPos();
-                        matrices.translate(-vec.x, -vec.y, -vec.z);
-                    }
+                    MatrixStack matrices = event.matrices;
+                    matrices.push();
 
                     double xPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevX, player.getX());
                     double yPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevY, player.getY());
                     double zPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevZ, player.getZ());
 
+                    Camera cam = mc.getBlockEntityRenderDispatcher().camera;
+                    if (cam != null) {
+                        Vec3d camPos = cam.getPos();
+                        matrices.translate(xPos - camPos.x, yPos - camPos.y, zPos - camPos.z);
+                    }
+
+
                     RenderUtils.renderFilledBox(
-                            event.matrices,
-                            (float) xPos - player.getWidth() / 2,
-                            (float) yPos,
-                            (float) zPos - player.getWidth() / 2,
-                            (float) xPos + player.getWidth() / 2,
-                            (float) yPos + player.getHeight(),
-                            (float) zPos + player.getWidth() / 2,
+                            matrices,
+                            - player.getWidth() / 2,
+                            0,
+                            - player.getWidth() / 2,
+                            player.getWidth() / 2,
+                            player.getHeight(),
+                            player.getWidth() / 2,
                             ThemeUtils.getMainColor());
-                    event.matrices.pop();
+                    matrices.pop();
                 }
             }
         }
