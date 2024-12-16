@@ -18,7 +18,7 @@ public class Render3DEvent extends Event {
 
     @Override
     public void callListeners(final ArrayList<EventListener> listeners) {
-        listeners.stream().filter(listener -> listener instanceof Render3DListener).map(listener -> (Render3DListener) listener).forEach(listener -> listener.onRender3D(this));
+        listeners.stream().filter(listener -> listener instanceof Render3DListener).map(listener -> (Render3DListener) listener).forEach(listener -> listener.onRender(this));
     }
 
     @Override
