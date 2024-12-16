@@ -6,12 +6,11 @@ import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
 import com.ufo.cart.utils.render.RenderUtils;
 import com.ufo.cart.utils.render.ThemeUtils;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+
 
 public class ESP extends Module implements Render3DListener {
 
@@ -43,11 +42,8 @@ public class ESP extends Module implements Render3DListener {
                     double yPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevY, player.getY());
                     double zPos = MathHelper.lerp(RenderTickCounter.ONE.getTickDelta(true), player.prevZ, player.getZ());
 
-                    Camera cam = mc.getBlockEntityRenderDispatcher().camera;
-                    if (cam != null) {
-                        Vec3d camPos = cam.getPos();
-                        matrices.translate(xPos - camPos.x, yPos - camPos.y, zPos - camPos.z);
-                    }
+
+                    matrices.translate(xPos, yPos, zPos);
 
 
                     RenderUtils.renderFilledBox(
@@ -65,4 +61,3 @@ public class ESP extends Module implements Render3DListener {
         }
     }
 }
-
