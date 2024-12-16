@@ -1,7 +1,6 @@
 package com.ufo.cart.mixin;
 
 import com.ufo.cart.Client;
-import com.ufo.cart.event.Event;
 import com.ufo.cart.event.events.Render3DEvent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
