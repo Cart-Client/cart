@@ -17,6 +17,7 @@
     "MinecraftClientMixin",
     "MouseHandlerAccessor",
     "ReachMixin",
-    "Render3DMixin"
+    "Render3DMixin",
+    "LivingEntityMixin"
   ]
 }
