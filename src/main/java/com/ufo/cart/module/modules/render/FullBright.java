@@ -25,7 +25,7 @@ public class FullBright extends Module implements TickListener{
     @Override
     public void onTick() {
         if (mc.player != null) {
-            mc.player.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 42069));
+            mc.player.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 42069, 1, false, false, false));
         }
     }
 }
