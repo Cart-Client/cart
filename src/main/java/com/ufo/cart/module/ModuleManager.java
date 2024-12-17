@@ -10,7 +10,6 @@ import com.ufo.cart.module.modules.misc.CrystalOptimizer;
 import com.ufo.cart.event.EventListener;
 import com.ufo.cart.module.modules.player.AutoSprint;
 import com.ufo.cart.module.modules.player.JumpReset;
-import com.ufo.cart.module.modules.render.ESP;
 import com.ufo.cart.module.modules.render.FullBright;
 import com.ufo.cart.module.modules.render.HUD;
 
@@ -78,7 +77,6 @@ public final class ModuleManager implements EventListener {
         add(new FullBright());
         add(new Reach());
         add(new HUD());
-        add(new ESP());
     }
 
     public void add(Module module) {

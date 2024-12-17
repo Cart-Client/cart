@@ -4,7 +4,6 @@ import com.ufo.cart.event.Event;
 import com.ufo.cart.event.EventListener;
 import com.ufo.cart.event.listeners.Render3DListener;
 import net.minecraft.client.util.math.MatrixStack;
-import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 
@@ -12,7 +11,7 @@ public class Render3DEvent extends Event {
     public MatrixStack matrices;
     public float delta;
 
-    public Render3DEvent(final MatrixStack matrices, final float delta, Matrix4f matrix4f) {
+    public Render3DEvent(final MatrixStack matrices, final float delta) {
         this.matrices = matrices;
         this.delta = delta;
     }

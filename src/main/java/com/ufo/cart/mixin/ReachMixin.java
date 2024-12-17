@@ -1,6 +1,7 @@
 package com.ufo.cart.mixin;
 
 import com.ufo.cart.Client;
+import com.ufo.cart.module.ModuleManager;
 import com.ufo.cart.module.modules.combat.Reach;
 import com.ufo.cart.utils.other.PlayerUtil;
 import net.minecraft.entity.player.PlayerEntity;
