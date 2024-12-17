@@ -14,11 +14,11 @@ public class AimAssist extends Module implements Render3DListener {
     private float yaw, pitch;
     private final NumberSetting FOV = new NumberSetting("FOV", 0.0, 180.0, 180.0, 1.0);
     private final NumberSetting Range = new NumberSetting("Range", 0.0, 10.0, 3.0, 1.0);
+    private final NumberSetting Smoothness = new NumberSetting("Smoothness", 0.0, 1.0, 1.0, 0.05);
 
-    public AimAssist()
-    {
+    public AimAssist() {
         super("Aim Assist", "Automatically aims at targets", 0, Category.COMBAT);
-        addSettings(FOV, Range);
+        addSettings(FOV, Range, Smoothness);
     }
 
     @Override
@@ -38,31 +38,35 @@ public class AimAssist extends Module implements Render3DListener {
         if (mc.player != null && mc.world != null) {
             PlayerEntity closestPlayer = PlayerUtil.findClosest(mc.player, Range.getValue());
 
-            if (closestPlayer != null) {
+            if (closestPlayer != null && mc.player.distanceTo(closestPlayer) <= Range.getValue()) {
                 double diffX = closestPlayer.getX() - mc.player.getX();
-                double diffY = closestPlayer.getY() + closestPlayer.getEyeHeight(closestPlayer.getPose()) -
-                        (mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()));
+                double diffY = (closestPlayer.getY() + closestPlayer.getEyeHeight(mc.player.getPose()) - (mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose())));
                 double diffZ = closestPlayer.getZ() - mc.player.getZ();
 
                 float playerYaw = mc.player.getYaw();
                 float playerPitch = mc.player.getPitch();
 
-                double playerDirX = -Math.cos(Math.toRadians(playerPitch)) * Math.sin(Math.toRadians(playerYaw));
-                double playerDirY = -Math.sin(Math.toRadians(playerPitch));
-                double playerDirZ = Math.cos(Math.toRadians(playerPitch)) * Math.cos(Math.toRadians(playerYaw));
+                double distance = MathHelper.sqrt((float) (diffX * diffX + diffZ * diffZ));
 
-                double targetDistance = MathHelper.sqrt((float) (diffX * diffX + diffY * diffY + diffZ * diffZ));
-                double targetDirX = diffX / targetDistance;
-                double targetDirY = diffY / targetDistance;
-                double targetDirZ = diffZ / targetDistance;
+                float targetYaw = (float) (MathHelper.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F;
+                float targetPitch = (float) -(MathHelper.atan2(diffY, distance) * 180.0D / Math.PI);
 
-                double dotProduct = (playerDirX * targetDirX) + (playerDirY * targetDirY) + (playerDirZ * targetDirZ);
-                double angle = Math.toDegrees(Math.acos(dotProduct));
+                float yawDiff = MathHelper.wrapDegrees(targetYaw - playerYaw);
+                float pitchDiff = MathHelper.wrapDegrees(targetPitch - playerPitch);
 
-                float fov = (float) FOV.getValue();
-                if (angle <= fov) {
-                    yaw = (float) (MathHelper.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F;
-                    pitch = (float) -(MathHelper.atan2(diffY, MathHelper.sqrt((float) (diffX * diffX + diffZ * diffZ))) * 180.0D / Math.PI);
+                double angle = Math.toDegrees(Math.acos(MathHelper.clamp(Math.cos(Math.toRadians(yawDiff)) * Math.cos(Math.toRadians(pitchDiff)), -1.0, 1.0)));
+
+                if (angle <= FOV.getValue()) {
+                    float smoothingFactor = 1.0f - Smoothness.getValueFloat();
+
+                    smoothingFactor = MathHelper.clamp(smoothingFactor, 0.1f, 1.0f);
+
+                    float aimAssistYawAdjustment = yawDiff * smoothingFactor;
+                    float aimAssistPitchAdjustment = pitchDiff * smoothingFactor;
+
+                    yaw = mc.player.getYaw() + aimAssistYawAdjustment;
+                    pitch = MathHelper.clamp(mc.player.getPitch() + aimAssistPitchAdjustment, -90.0F, 90.0F);
+
                     mc.player.setYaw(yaw);
                     mc.player.setPitch(pitch);
                 }
