@@ -9,6 +9,8 @@ import net.minecraft.client.render.RenderTickCounter;
 
 import com.ufo.cart.utils.render.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.gen.YOffset;
 
 import java.awt.*;
 import java.util.Objects;
@@ -17,6 +19,7 @@ import static com.ufo.cart.Client.mc;
 
 public class Hud {
     private static final Class<? extends Module> ArrayList = HUD.class ;
+    public static final Identifier VapeLogo = Identifier.of("cart", "textures/gui/cartvapelogo.png");;
 
     public static void render(RenderTickCounter tickDelta, DrawContext context, MatrixStack matrices) {
         // rendar logic
@@ -35,8 +38,12 @@ public class Hud {
                 return Integer.compare(width2, width1);
             });
 
+
+
             int yOffset = 10;
             int xOffset = 10;
+            TextRenderer.drawMinecraftText("Cart v0.1", context, 8, yOffset, ThemeUtils.getMainColor(255).getRGB(), true);
+            yOffset += 13;
 
             for (Module module : enabledModules) {
                 int width = mc.textRenderer.getWidth(module.getName());
