@@ -48,7 +48,6 @@ public class TriggerBot extends Module implements TickListener {
             return;
         }
 
-        // Check if attack cooldown is active
         if (attackCooldown > 0) {
             attackCooldown--;
             return;
@@ -59,6 +58,10 @@ public class TriggerBot extends Module implements TickListener {
 
             if (target instanceof PlayerEntity && target.isAlive() && target != mc.player) {
                 Item heldItem = mc.player.getMainHandStack().getItem();
+
+                if (mc.player.isUsingItem()) {
+                    return;
+                }
 
                 if (mc.player.getAttackCooldownProgress(cooldownProgress.getValueFloat()) < cooldownProgress.getValueFloat()) {
                     return;
