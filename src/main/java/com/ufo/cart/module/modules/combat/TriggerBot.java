@@ -19,6 +19,7 @@ import java.util.Random;
 public class TriggerBot extends Module implements TickListener {
 
     private final BooleanSetting swordOnly = new BooleanSetting("Sword Only", false);
+    private final NumberSetting cooldownProgress = new NumberSetting("Cooldown Progress", 0.0, 1.0, 1.0, 0.01);
     private final RangeSetting attackDelay = new RangeSetting("Attack Delay", 0, 20, 0, 1, 1);
     private final NumberSetting maceDelay = new NumberSetting("Mace Delay", 10.0, 0.0, 50.0, 1.0);
     private int attackCooldown = 0;
@@ -26,7 +27,7 @@ public class TriggerBot extends Module implements TickListener {
 
     public TriggerBot() {
         super("Trigger Bot", "Automatically hits targets", 0, Category.COMBAT);
-        addSettings(swordOnly, attackDelay, maceDelay);
+        addSettings(swordOnly, cooldownProgress, attackDelay, maceDelay);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class TriggerBot extends Module implements TickListener {
             if (target instanceof PlayerEntity && target.isAlive() && target != mc.player) {
                 Item heldItem = mc.player.getMainHandStack().getItem();
 
-                if (mc.player.getAttackCooldownProgress(1.0F) < 1.0F) {
+                if (mc.player.getAttackCooldownProgress(cooldownProgress.getValueFloat()) < cooldownProgress.getValueFloat()) {
                     return;
                 }
 

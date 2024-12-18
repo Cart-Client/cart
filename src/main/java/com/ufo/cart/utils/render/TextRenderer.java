@@ -11,7 +11,7 @@ public final class TextRenderer implements Utils {
         MatrixStack matrices = context.getMatrices();
         matrices.push();
 
-        matrices.scale(1.5f,1.5f,1.5f);
+        matrices.scale(2f,2f,2f);
         context.drawText(Client.mc.textRenderer, string, (x) / 2, (y) / 2, color, shadow);
         matrices.scale(1,1,1);
 
@@ -29,11 +29,11 @@ public final class TextRenderer implements Utils {
         matrices.pop();
     }
 
-    public static void drawLargeMinecraftText(String string, DrawContext context, int x, int y, int color, boolean shadow) {
+    public static void drawMediumMinecraftText(String string, DrawContext context, int x, int y, int color, boolean shadow) {
         MatrixStack matrices = context.getMatrices();
         matrices.push();
 
-        matrices.scale(2f,2f,2f);
+        matrices.scale(1.5f,1.5f,1.5f);
         context.drawText(Client.mc.textRenderer, string, (x) / 2, (y) / 2, color, shadow);
         matrices.scale(1,1,1);
 

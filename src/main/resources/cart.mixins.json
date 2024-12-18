@@ -19,6 +19,7 @@
     "MouseHandlerAccessor",
     "ReachMixin",
     "Render3DMixin",
-    "WorldRenderer"
+    "WorldRenderer",
+    "interfaces.MinecraftClientInterface"
   ]
 }

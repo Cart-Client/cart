@@ -42,7 +42,7 @@ public class Hud {
 
             int yOffset = 10;
             int xOffset = 10;
-            TextRenderer.drawMinecraftText("Cart v0.1", context, 8, yOffset, ThemeUtils.getMainColor(255).getRGB(), true);
+            TextRenderer.drawMediumMinecraftText("Cart v0.1", context, 8, yOffset, ThemeUtils.getMainColor(255).getRGB(), true);
             yOffset += 13;
 
             for (Module module : enabledModules) {

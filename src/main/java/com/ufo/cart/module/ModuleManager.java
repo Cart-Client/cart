@@ -9,6 +9,7 @@ import com.ufo.cart.module.modules.combat.TriggerBot;
 import com.ufo.cart.module.modules.misc.CrystalOptimizer;
 import com.ufo.cart.event.EventListener;
 import com.ufo.cart.module.modules.player.AutoSprint;
+import com.ufo.cart.module.modules.player.FastPlace;
 import com.ufo.cart.module.modules.player.JumpReset;
 import com.ufo.cart.module.modules.render.Chams;
 import com.ufo.cart.module.modules.render.FullBright;
@@ -79,6 +80,7 @@ public final class ModuleManager implements EventListener {
         add(new Reach());
         add(new HUD());
         add(new Chams());
+        add(new FastPlace());
     }
 
     public void add(Module module) {
