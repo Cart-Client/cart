@@ -31,6 +31,12 @@ public class BlockESP extends Module implements Render3DListener {
     private final List<Block> oreBlocks = new ArrayList<>();
     private final Map<Block, Color> blockColors = new HashMap<>();
 
+    private Map<BlockPos, Color> cachedBlocks = new HashMap<>();
+    private BlockPos lastPlayerPos = null;
+    private int lastRenderDistance = -1;
+    private long lastUpdateTime = 0;
+    private static final long CACHE_UPDATE_INTERVAL = 1000;
+
     public BlockESP() {
         super("Block ESP", "Renders blocks through walls.", 0, Category.RENDER);
         addSetting(opacity);
@@ -83,6 +89,9 @@ public class BlockESP extends Module implements Render3DListener {
         if (mc.worldRenderer != null) {
             mc.worldRenderer.reload();
         }
+        cachedBlocks.clear();
+        lastPlayerPos = null;
+        lastRenderDistance = -1;
     }
 
     @Override
@@ -92,6 +101,7 @@ public class BlockESP extends Module implements Render3DListener {
         if (mc.worldRenderer != null) {
             mc.worldRenderer.reload();
         }
+        cachedBlocks.clear();
     }
 
     @Override
@@ -107,22 +117,15 @@ public class BlockESP extends Module implements Render3DListener {
         int renderDistance = (int) range.getValue();
         BlockPos playerPos = mc.player.getBlockPos();
 
-        Map<BlockPos, Color> blocksToRender = new HashMap<>();
-
-        for (int x = playerPos.getX() - renderDistance; x <= playerPos.getX() + renderDistance; x++) {
-            for (int y = Math.max(mc.world.getBottomY(), playerPos.getY() - renderDistance); y <= Math.min(mc.world.getTopY() - 1, playerPos.getY() + renderDistance); y++) {
-                for (int z = playerPos.getZ() - renderDistance; z <= playerPos.getZ() + renderDistance; z++) {
-                    BlockPos pos = new BlockPos(x, y, z);
-                    Block block = mc.world.getBlockState(pos).getBlock();
-
-                    if (oreBlocks.contains(block)) {
-                        blocksToRender.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
-                    }
-                }
-            }
+        long currentTime = System.currentTimeMillis();
+        if (lastPlayerPos == null || !lastPlayerPos.equals(playerPos) || lastRenderDistance != renderDistance || currentTime - lastUpdateTime >= CACHE_UPDATE_INTERVAL) {
+            updateCache(playerPos, renderDistance);
+            lastPlayerPos = playerPos;
+            lastRenderDistance = renderDistance;
+            lastUpdateTime = currentTime;
         }
 
-        blocksToRender.forEach((pos, color) -> {
+        cachedBlocks.forEach((pos, color) -> {
             matrices.push();
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
@@ -137,6 +140,22 @@ public class BlockESP extends Module implements Render3DListener {
             }
             matrices.pop();
         });
+    }
+
+    private void updateCache(BlockPos playerPos, int renderDistance) {
+        cachedBlocks.clear();
+        for (int x = playerPos.getX() - renderDistance; x <= playerPos.getX() + renderDistance; x++) {
+            for (int y = Math.max(mc.world.getBottomY(), playerPos.getY() - renderDistance); y <= Math.min(mc.world.getTopY() - 1, playerPos.getY() + renderDistance); y++) {
+                for (int z = playerPos.getZ() - renderDistance; z <= playerPos.getZ() + renderDistance; z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    Block block = mc.world.getBlockState(pos).getBlock();
+
+                    if (oreBlocks.contains(block)) {
+                        cachedBlocks.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
+                    }
+                }
+            }
+        }
     }
 
     private Box getFaceBox(Direction dir) {
