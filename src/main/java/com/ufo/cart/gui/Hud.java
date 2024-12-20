@@ -10,10 +10,8 @@ import net.minecraft.client.render.RenderTickCounter;
 import com.ufo.cart.utils.render.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.YOffset;
 
 import java.awt.*;
-import java.util.Objects;
 
 import static com.ufo.cart.Client.mc;
 

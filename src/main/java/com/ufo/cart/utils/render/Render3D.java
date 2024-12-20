@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 
@@ -14,14 +16,14 @@ import static com.ufo.cart.Client.mc;
 
 public class Render3D {
 
-    public static void render3DBox(MatrixStack matrixStack, Box box, Color color, float lineThickness) {
+    public static void render3DBox(MatrixStack matrixStack, Box box, Color color, int alpha, float lineThickness) {
 
         // Ensure color is not null, or use a default color.
         if (color == null) {
             color = Color.WHITE;
         }
 
-        RenderSystem.setShaderColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
+        RenderSystem.setShaderColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, alpha / 255f);
 
         MatrixStack.Entry entry = matrixStack.peek();
         Matrix4f matrix4f = entry.getPositionMatrix();
@@ -154,5 +156,13 @@ public class Render3D {
                 (float) normalized.y, (float) normalized.z);
         bufferBuilder.vertex(matrix4f, x2, y2, z2).color(r, g, b, 1.0f).normal(entry, (float) normalized.x,
                 (float) normalized.y, (float) normalized.z);
+    }
+
+
+    // Graciously yoinked from aoba
+    public static Vec3d getEntityPositionInterpolated(Entity entity, float delta) {
+        return new Vec3d(MathHelper.lerp(delta, entity.prevX, entity.getX()),
+                MathHelper.lerp(delta, entity.prevY, entity.getY()),
+                MathHelper.lerp(delta, entity.prevZ, entity.getZ()));
     }
 }

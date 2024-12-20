@@ -20,6 +20,9 @@ public class FullBright extends Module implements TickListener{
     @Override
     public void onDisable() {
         this.eventBus.unregister(TickListener.class, this);
+        super.onDisable();
+        assert mc.player != null;
+        mc.player.removeStatusEffect(StatusEffects.NIGHT_VISION);
     }
 
     @Override
