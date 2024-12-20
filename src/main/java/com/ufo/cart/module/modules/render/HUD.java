@@ -9,7 +9,7 @@ public class HUD extends Module {
 
     public final BooleanSetting arrayList = new BooleanSetting("Array List", true);
     public final ModeSetting whichSide = new ModeSetting("Side", "Left", "Left", "Right");
-    public final ModeSetting colorMode = new ModeSetting("Color", "Theme", "Theme", "Rainbow");
+    public final ModeSetting colorMode = new ModeSetting("Color", "Theme", "Theme", "Rainbow", "Nebula");
 
     public HUD() {
         super("HUD", "Various HUD Elements.", 0, Category.RENDER);

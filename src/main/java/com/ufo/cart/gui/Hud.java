@@ -9,7 +9,6 @@ import net.minecraft.client.render.RenderTickCounter;
 
 import com.ufo.cart.utils.render.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 
 import java.awt.*;
 
@@ -17,6 +16,23 @@ import static com.ufo.cart.Client.mc;
 
 public class Hud {
     private static final Class<? extends Module> ArrayList = HUD.class;
+
+    private static Color getGradientColor(float progress) {
+        int startRed = 150;
+        int startGreen = 100;
+        int startBlue = 250;
+
+        int endRed = 100;
+        int endGreen = 150;
+        int endBlue = 255;
+
+        int red = (int) (startRed + (endRed - startRed) * progress);
+        int green = (int) (startGreen + (endGreen - startGreen) * progress);
+        int blue = (int) (startBlue + (endBlue - startBlue) * progress);
+
+
+        return new Color(red, green, blue);
+    }
 
     public static void renderArrayList(RenderTickCounter tickDelta, DrawContext context, MatrixStack matrices) {
         var enabledModules = Client.getInstance().getModuleManager().getEnabledModules();
@@ -40,20 +56,27 @@ public class Hud {
                 titleColor = ThemeUtils.getMainColor(255);
             }
 
+            if (luhCalmHud.colorMode.getMode() == "Nebula") {
+                titleColor = getGradientColor(0.0f);
+            }
             if (luhCalmHud.whichSide.getMode() == "Left") {
                 int yOffset = 10;
                 int xOffset = 10;
 
-                TextRenderer.drawMediumMinecraftText("Cart v0.1", context, 8, 10, titleColor.getRGB(), true);
+                TextRenderer.drawMediumMinecraftText("Cart", context, 8, 10, titleColor.getRGB(), true);
                 yOffset += 13;
 
-                for (Module module : enabledModules) {
+                for (int i = 0; i < enabledModules.size(); i++) {
+                    Module module = enabledModules.get(i);
                     int width = mc.textRenderer.getWidth(module.getName());
                     Color color;
                     if (luhCalmHud.colorMode.getMode() == "Rainbow") {
                         color = Color.getHSBColor(hue, 1.0f, 1.0f);
                         hue += 0.01f;
                         if (hue > 1.0f) hue -= 1.0f;
+                    } else if (luhCalmHud.colorMode.getMode() == "Nebula") {
+                        float progress = (float) i / enabledModules.size();
+                        color = getGradientColor(progress);
                     } else {
                         color = ThemeUtils.getMainColor(255);
                     }
@@ -67,9 +90,10 @@ public class Hud {
                 int yOffset = 10;
                 int screenWidth = mc.getWindow().getScaledWidth();
 
-                TextRenderer.drawMediumMinecraftText("Cart v0.1", context, 8, 10, titleColor.getRGB(), true);
+                TextRenderer.drawMediumMinecraftText("Cart", context, 8, 10, titleColor.getRGB(), true);
 
-                for (Module module : enabledModules) {
+                for (int i = 0; i < enabledModules.size(); i++) {
+                    Module module = enabledModules.get(i);
                     int width = mc.textRenderer.getWidth(module.getName());
                     int xOffset = screenWidth - width - 10;
                     Color color;
@@ -77,6 +101,9 @@ public class Hud {
                         color = Color.getHSBColor(hue, 1.0f, 1.0f);
                         hue += 0.01f;
                         if (hue > 1.0f) hue -= 1.0f;
+                    } else if (luhCalmHud.colorMode.getMode() == "Nebula") {
+                        float progress = (float) i / enabledModules.size();
+                        color = getGradientColor(progress);
                     } else {
                         color = ThemeUtils.getMainColor(255);
                     }
