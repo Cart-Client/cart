@@ -1,5 +1,7 @@
 package com.ufo.cart.module.modules.combat;
 
+// Credit to sootysplash for letting use his method to find aim point
+
 import com.ufo.cart.event.events.Render3DEvent;
 import com.ufo.cart.event.listeners.Render3DListener;
 import com.ufo.cart.module.Category;
@@ -9,8 +11,10 @@ import com.ufo.cart.module.setting.NumberSetting;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.SwordItem;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import com.ufo.cart.utils.other.PlayerUtil;
+import net.minecraft.util.math.Vec3d;
 
 public class AimAssist extends Module implements Render3DListener {
 
@@ -42,6 +46,17 @@ public class AimAssist extends Module implements Render3DListener {
         super.onDisable();
     }
 
+    private Vec3d getClosestPointOnBoundingBox(PlayerEntity target) {
+        Vec3d playerPos = mc.player.getPos().add(0, mc.player.getEyeHeight(mc.player.getPose()), 0);
+        Box boundingBox = target.getBoundingBox();
+
+        double closestX = MathHelper.clamp(playerPos.x, boundingBox.minX, boundingBox.maxX);
+        double closestY = MathHelper.clamp(playerPos.y, boundingBox.minY, boundingBox.maxY);
+        double closestZ = MathHelper.clamp(playerPos.z, boundingBox.minZ, boundingBox.maxZ);
+
+        return new Vec3d(closestX, closestY, closestZ);
+    }
+
     @Override
     public void onRender(Render3DEvent event) {
         if (mc.player != null && mc.world != null) {
@@ -57,9 +72,11 @@ public class AimAssist extends Module implements Render3DListener {
             PlayerEntity closestPlayer = PlayerUtil.findClosest(mc.player, Range.getValue());
 
             if (closestPlayer != null && mc.player.distanceTo(closestPlayer) <= Range.getValue()) {
-                double diffX = closestPlayer.getX() - mc.player.getX();
-                double diffY = (closestPlayer.getY() + closestPlayer.getEyeHeight(mc.player.getPose()) - (mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose())));
-                double diffZ = closestPlayer.getZ() - mc.player.getZ();
+                Vec3d closestPoint = getClosestPointOnBoundingBox(closestPlayer);
+
+                double diffX = closestPoint.x - mc.player.getX();
+                double diffY = closestPoint.y - (mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose()));
+                double diffZ = closestPoint.z - mc.player.getZ();
 
                 float playerYaw = mc.player.getYaw();
                 float playerPitch = mc.player.getPitch();
