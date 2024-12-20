@@ -11,10 +11,7 @@ import com.ufo.cart.event.EventListener;
 import com.ufo.cart.module.modules.player.AutoSprint;
 import com.ufo.cart.module.modules.player.FastPlace;
 import com.ufo.cart.module.modules.player.JumpReset;
-import com.ufo.cart.module.modules.render.Chams;
-import com.ufo.cart.module.modules.render.ESP;
-import com.ufo.cart.module.modules.render.FullBright;
-import com.ufo.cart.module.modules.render.HUD;
+import com.ufo.cart.module.modules.render.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +80,7 @@ public final class ModuleManager implements EventListener {
         add(new Chams());
         add(new FastPlace());
         add(new ESP());
+        add(new BlockESP());
     }
 
     public void add(Module module) {
