@@ -8,7 +8,7 @@ man we on duh comethazine 😈
 
 
 # Cart Client Documentation
-
+ 
 ---
 
 ## Event Handling
