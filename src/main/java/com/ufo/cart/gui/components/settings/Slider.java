@@ -52,7 +52,7 @@ public final class Slider extends RenderableSetting {
 
         int textX = parentX() + parentWidth() / 2;
         int textY = parentY() + offset + parentOffset() + 4;
-        TextRenderer.drawCenteredMinecraftText(setting.getName() + ": " + setting.getValue(), context, textX, textY, Color.WHITE.getRGB());
+        TextRenderer.drawCenteredMinecraftText(setting.getName() + ": " + setting.getValue(), context, textX, textY, Color.WHITE.getRGB(), true);
     }
 
     @Override

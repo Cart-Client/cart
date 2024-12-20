@@ -68,7 +68,7 @@ public class RangeSlider extends RenderableSetting {
 
         int textX = parentX() + parentWidth() / 2;
         int textY = parentY() + offset + parentOffset() + 4;
-        TextRenderer.drawCenteredMinecraftText(setting.getName() + ": " + setting.getValueMin() + " - " + setting.getValueMax(), context, textX, textY, Color.WHITE.getRGB());
+        TextRenderer.drawCenteredMinecraftText(setting.getName() + ": " + setting.getValueMin() + " - " + setting.getValueMax(), context, textX, textY, Color.WHITE.getRGB(), true);
     }
 
     private void slide(double mouseX) {

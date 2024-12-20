@@ -77,7 +77,7 @@ public final class ModuleButton {
         context.fill(x, y, x + width, y + height, animatedColor.getRGB());
 
 
-        TextRenderer.drawCenteredMinecraftText(module.getName(), context, x + (width / 2), y + 8, ThemeUtils.getTextColor().getRGB());
+        TextRenderer.drawCenteredMinecraftText(module.getName(), context, x + (width / 2), y + 8, ThemeUtils.getTextColor().getRGB(), true);
 
         if (isHovered(mouseX, mouseY)) {
             context.fill(x, y, x + width, y + height, new Color(255, 255, 255, 10).getRGB());
