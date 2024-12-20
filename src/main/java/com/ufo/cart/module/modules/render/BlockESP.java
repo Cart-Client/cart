@@ -55,6 +55,7 @@ public class BlockESP extends Module implements Render3DListener {
         oreBlocks.add(Blocks.DEEPSLATE_COPPER_ORE);
         oreBlocks.add(Blocks.NETHER_GOLD_ORE);
         oreBlocks.add(Blocks.ANCIENT_DEBRIS);
+        oreBlocks.add(Blocks.COPPER_ORE);
 
         blockColors.put(Blocks.COAL_ORE, Color.black);
         blockColors.put(Blocks.IRON_ORE, new Color(186, 152, 128));
