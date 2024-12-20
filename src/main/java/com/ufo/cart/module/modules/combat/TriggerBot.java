@@ -22,12 +22,13 @@ public class TriggerBot extends Module implements TickListener {
     private final NumberSetting cooldownProgress = new NumberSetting("Cooldown Progress", 0.0, 1.0, 1.0, 0.01);
     private final RangeSetting attackDelay = new RangeSetting("Attack Delay", 0, 20, 0, 1, 1);
     private final NumberSetting maceDelay = new NumberSetting("Mace Delay", 0.0, 100.0, 50.0, 1.0);
+    private final BooleanSetting teamCheck = new BooleanSetting("Team Check", false);
     private int attackCooldown = 0;
     private final Random random = new Random();
 
     public TriggerBot() {
         super("Trigger Bot", "Automatically hits targets", 0, Category.COMBAT);
-        addSettings(swordOnly, cooldownProgress, attackDelay, maceDelay);
+        addSettings(swordOnly, cooldownProgress, attackDelay, maceDelay, teamCheck);
     }
 
     @Override
@@ -87,6 +88,10 @@ public class TriggerBot extends Module implements TickListener {
                     } else {
                         delay = (int) (mc.player.getAttackCooldownProgress(1.0F) + attackDelayInterval);
                     }
+                }
+
+                if (teamCheck.getValue() && target.getTeamColorValue() == mc.player.getTeamColorValue()) {
+                    return;
                 }
 
                 attackCooldown = delay;
