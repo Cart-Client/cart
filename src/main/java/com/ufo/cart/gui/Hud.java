@@ -52,7 +52,7 @@ public class Hud {
                     Color color;
                     if (luhCalmHud.colorMode.getMode() == "Rainbow") {
                         color = Color.getHSBColor(hue, 1.0f, 1.0f);
-                        hue += 0.05f;
+                        hue += 0.01f;
                         if (hue > 1.0f) hue -= 1.0f;
                     } else {
                         color = ThemeUtils.getMainColor(255);
@@ -75,7 +75,7 @@ public class Hud {
                     Color color;
                     if (luhCalmHud.colorMode.getMode() == "Rainbow") {
                         color = Color.getHSBColor(hue, 1.0f, 1.0f);
-                        hue += 0.05f;
+                        hue += 0.01f;
                         if (hue > 1.0f) hue -= 1.0f;
                     } else {
                         color = ThemeUtils.getMainColor(255);
