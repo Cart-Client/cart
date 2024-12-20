@@ -9,7 +9,6 @@ import com.ufo.cart.utils.render.Render3D;
 import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -17,11 +16,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
 import java.awt.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BlockESP extends Module implements Render3DListener {
 
@@ -29,7 +29,7 @@ public class BlockESP extends Module implements Render3DListener {
     private final NumberSetting range = new NumberSetting("Range", 10, 100, 25, 1);
 
     private final List<Block> oreBlocks = new ArrayList<>();
-
+    private final Map<Block, Color> blockColors = new HashMap<>();
 
     public BlockESP() {
         super("Block ESP", "Renders blocks through walls.", 0, Category.RENDER);
@@ -54,6 +54,26 @@ public class BlockESP extends Module implements Render3DListener {
         oreBlocks.add(Blocks.DEEPSLATE_COPPER_ORE);
         oreBlocks.add(Blocks.NETHER_GOLD_ORE);
         oreBlocks.add(Blocks.ANCIENT_DEBRIS);
+
+        blockColors.put(Blocks.COAL_ORE, Color.black);
+        blockColors.put(Blocks.IRON_ORE, new Color(186, 152, 128));
+        blockColors.put(Blocks.GOLD_ORE, new Color(205, 152, 30));
+        blockColors.put(Blocks.DIAMOND_ORE, new Color(80, 237, 220));
+        blockColors.put(Blocks.EMERALD_ORE, new Color(4, 153, 40));
+        blockColors.put(Blocks.REDSTONE_ORE, Color.red);
+        blockColors.put(Blocks.LAPIS_ORE, new Color(40, 87, 181));
+        blockColors.put(Blocks.NETHER_QUARTZ_ORE, Color.white);
+        blockColors.put(Blocks.DEEPSLATE_COAL_ORE, Color.black);
+        blockColors.put(Blocks.DEEPSLATE_IRON_ORE, new Color(186, 152, 128));
+        blockColors.put(Blocks.DEEPSLATE_GOLD_ORE, new Color(205, 152, 30));
+        blockColors.put(Blocks.DEEPSLATE_DIAMOND_ORE, new Color(80, 237, 220));
+        blockColors.put(Blocks.DEEPSLATE_EMERALD_ORE, new Color(4, 153, 40));
+        blockColors.put(Blocks.DEEPSLATE_REDSTONE_ORE, Color.red);
+        blockColors.put(Blocks.DEEPSLATE_LAPIS_ORE, new Color(40, 87, 181));
+        blockColors.put(Blocks.COPPER_ORE, new Color(229, 124, 86));
+        blockColors.put(Blocks.DEEPSLATE_COPPER_ORE, new Color(229, 124, 86));
+        blockColors.put(Blocks.ANCIENT_DEBRIS, new Color(59, 34, 28));
+        blockColors.put(Blocks.NETHER_GOLD_ORE, new Color(205, 152, 30));
     }
 
     @Override
@@ -76,88 +96,47 @@ public class BlockESP extends Module implements Render3DListener {
 
     @Override
     public void onRender(Render3DEvent event) {
-        if (mc.world != null && mc.player != null) {
-            MatrixStack matrices = event.matrices;
-            Camera cam = mc.getBlockEntityRenderDispatcher().camera;
+        if (mc.world == null || mc.player == null) return;
 
-            if (cam == null) return;
+        MatrixStack matrices = event.matrices;
+        Camera cam = mc.getBlockEntityRenderDispatcher().camera;
 
-            Vec3d camPos = cam.getPos();
+        if (cam == null) return;
 
-            int renderDistance = (int) range.getValue();
+        Vec3d camPos = cam.getPos();
+        int renderDistance = (int) range.getValue();
+        BlockPos playerPos = mc.player.getBlockPos();
 
-            BlockPos playerPos = mc.player.getBlockPos();
+        Map<BlockPos, Color> blocksToRender = new HashMap<>();
 
-            for (int x = playerPos.getX() - renderDistance; x <= playerPos.getX() + renderDistance; x++) {
-                for (int y = Math.max(0, playerPos.getY() - renderDistance); y <= Math.min(mc.world.getHeight() - 1, playerPos.getY() + renderDistance); y++) {
-                    for (int z = playerPos.getZ() - renderDistance; z <= playerPos.getZ() + renderDistance; z++) {
-                        BlockPos pos = new BlockPos(x, y, z);
-                        Block block = mc.world.getBlockState(pos).getBlock();
+        for (int x = playerPos.getX() - renderDistance; x <= playerPos.getX() + renderDistance; x++) {
+            for (int y = Math.max(mc.world.getBottomY(), playerPos.getY() - renderDistance); y <= Math.min(mc.world.getTopY() - 1, playerPos.getY() + renderDistance); y++) {
+                for (int z = playerPos.getZ() - renderDistance; z <= playerPos.getZ() + renderDistance; z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    Block block = mc.world.getBlockState(pos).getBlock();
 
-                        if (oreBlocks.contains(block)) {
-                            Color color = ThemeUtils.getMainColor();
-
-                            if (block == Blocks.COAL_ORE) {
-                                color = Color.black;
-                            } else if (block == Blocks.IRON_ORE) {
-                                color = new Color(186, 152, 128);
-                            } else if (block == Blocks.GOLD_ORE) {
-                                color = new Color(205, 152, 30);
-                            } else if (block == Blocks.DIAMOND_ORE) {
-                                color = new Color(80, 237, 220);
-                            } else if (block == Blocks.EMERALD_ORE) {
-                                color = new Color(4, 153, 40);
-                            } else if (block == Blocks.REDSTONE_ORE) {
-                                color = Color.red;
-                            } else if (block == Blocks.LAPIS_ORE) {
-                                color = new Color(40, 87, 181);
-                            } else if (block == Blocks.NETHER_QUARTZ_ORE) {
-                                color = Color.white;
-                            } else if (block == Blocks.DEEPSLATE_COAL_ORE) {
-                                color = Color.black;
-                            } else if (block == Blocks.DEEPSLATE_IRON_ORE) {
-                                color = new Color(186, 152, 128);
-                            } else if (block == Blocks.DEEPSLATE_GOLD_ORE) {
-                                color = new Color(205, 152, 30);
-                            } else if (block == Blocks.DEEPSLATE_DIAMOND_ORE) {
-                                color = new Color(80, 237, 220);
-                            } else if (block == Blocks.DEEPSLATE_EMERALD_ORE) {
-                                color = new Color(4, 153, 40);
-                            } else if (block == Blocks.DEEPSLATE_REDSTONE_ORE) {
-                                color = Color.red;
-                            } else if (block == Blocks.DEEPSLATE_LAPIS_ORE) {
-                                color = new Color(40, 87, 181);
-                            } else if (block == Blocks.COPPER_ORE) {
-                                color = new Color(229, 124, 86);
-                            } else if (block == Blocks.DEEPSLATE_COPPER_ORE) {
-                                color = new Color(229, 124, 86);
-                            } else if (block == Blocks.ANCIENT_DEBRIS) {
-                                color = new Color(59, 34, 28);
-                            } else if (block == Blocks.NETHER_GOLD_ORE) {
-                                color = new Color(205, 152, 30);
-                            }
-                            matrices.push();
-
-                            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
-                            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
-
-
-                            matrices.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
-
-                            for (Direction dir : Direction.values()) {
-                                BlockPos neighborPos = pos.offset(dir);
-                                if (mc.world.getBlockState(neighborPos).isAir()) {
-                                    Box faceBox = getFaceBox(dir);
-                                    Render3D.render3DBox(matrices, faceBox, color, opacity.getValueInt(), 1f);
-                                }
-                            }
-
-                            matrices.pop();
-                        }
+                    if (oreBlocks.contains(block)) {
+                        blocksToRender.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
                     }
                 }
             }
         }
+
+        blocksToRender.forEach((pos, color) -> {
+            matrices.push();
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
+            matrices.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
+
+            for (Direction dir : Direction.values()) {
+                BlockPos neighborPos = pos.offset(dir);
+                if (mc.world.getBlockState(neighborPos).isAir() || !mc.world.getBlockState(neighborPos).isOpaqueFullCube(mc.world, neighborPos)) {
+                    Box faceBox = getFaceBox(dir);
+                    Render3D.render3DBox(matrices, faceBox, color, opacity.getValueInt(), 1f);
+                }
+            }
+            matrices.pop();
+        });
     }
 
     private Box getFaceBox(Direction dir) {
