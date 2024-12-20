@@ -65,7 +65,7 @@ public class ESP extends Module implements Render3DListener {
                             0,
                             -player.getWidth() / 2,
                             player.getWidth() / 2,
-                            player.getHeight(),
+                            player.getHeight() + 0.1,
                             player.getWidth() / 2
                     );
 
