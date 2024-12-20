@@ -28,7 +28,7 @@ public class Hud {
         float hue = (System.currentTimeMillis() % 3600) / 3600f;
         Color titleColor = hudModule.colorMode.getMode() == "Rainbow" ? Color.getHSBColor(hue, 1.0f, 1.0f) : ThemeUtils.getMainColor(255);
 
-        TextRenderer.drawMediumMinecraftText("Cart v0.1", context, 8, 10, titleColor.getRGB(), true);
+        TextRenderer.drawMediumMinecraftText("Cart", context, 8, 10, titleColor.getRGB(), true);
 
         int yOffset = 23;
         for (Module module : enabledModules) {
