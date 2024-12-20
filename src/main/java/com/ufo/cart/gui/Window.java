@@ -25,10 +25,6 @@ public final class Window {
     int dragX, dragY;
     private static final int BORDER_RADIUS = 8;
 
-    private double animationScale;
-    private static final double ANIM_SPEED = 0.1;
-
-
 
     public Window(int x, int y, int width, int height, Category category) {
         this.x = x;
@@ -38,7 +34,6 @@ public final class Window {
         this.extended = true;
         this.height = height;
         this.category = category;
-        this.animationScale = 0.0;
 
         int offset = height;
         for (Module module : Client.INSTANCE.getModuleManager().getModulesInCategory(category)) {
@@ -49,13 +44,6 @@ public final class Window {
 
 
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // --- Animate Window Scale ---
-        animationScale = Math.min(1, animationScale + ANIM_SPEED);
-        double animX = x - (width * (1 - animationScale) / 2.0);
-        double animY = y - (height * (1 - animationScale) / 2.0);
-        double animWidth = width * animationScale;
-        double animHeight = height * animationScale;
-
         int totalHeight = height;
         if (extended) {
             for (ModuleButton moduleButton : moduleButtons) {
@@ -66,13 +54,13 @@ public final class Window {
                     }
                 }
             }
+
         }
 
+        drawRoundedRect(context, x - 2, y - 2, width + 4, totalHeight + 4, BORDER_RADIUS, ThemeUtils.getBorderColor().getRGB());
 
-        drawRoundedRect(context, (int)animX - 2, (int)animY - 2, (int)animWidth + 4, totalHeight + 4, BORDER_RADIUS, ThemeUtils.getBorderColor().getRGB());
 
-
-        context.fill((int)animX, (int)animY, (int)(animX + animWidth), (int)(animY + animHeight), new Color(15, 15, 15, 220).getRGB());
+        context.fill(x, y, x + width, y + height, new Color(15, 15, 15, 220).getRGB());
 
 
         MatrixStack matrixStack = context.getMatrices();
@@ -80,9 +68,9 @@ public final class Window {
 
         float scale = 2.0f;
         matrixStack.scale(scale, scale, 1.0f);
-        int scaledX = (int) (((int)animX + (animWidth / 2)) / scale);
-        int scaledY = (int) (((int)animY + 6) / scale);
-        int scaledXRight = (int) (((int)animX + getWidth() - 20) / scale);
+        int scaledX = (int) ((x + (width / 2)) / scale);
+        int scaledY = (int) ((y + 6) / scale);
+        int scaledXRight = (int) ((x + getWidth() - 20) / scale);
 
 
         context.drawCenteredTextWithShadow(mc.textRenderer, category.name, scaledX, scaledY, ThemeUtils.getTextColor().getRGB());
@@ -96,8 +84,8 @@ public final class Window {
         for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.render(context, mouseX, mouseY, delta);
         }
-    }
 
+    }
 
     private void drawRoundedRect(DrawContext context, int x, int y, int width, int height, int radius, int color) {
         context.fill(x + radius, y, x + width - radius, y + height, color);
