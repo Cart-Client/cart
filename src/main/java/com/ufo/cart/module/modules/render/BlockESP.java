@@ -33,7 +33,7 @@ public class BlockESP extends Module implements Render3DListener {
     private final Map<Block, Color> blockColors = new HashMap<>();
 
     public BlockESP() {
-        super("Block ESP", "Renders blocks through walls.", 0, Category.RENDER);
+        super("Block ESP", "Renders blocks through walls. WARNING: Rapes FPS.", 0, Category.RENDER);
         addSetting(opacity);
         addSetting(range);
 
