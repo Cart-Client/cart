@@ -16,6 +16,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -106,6 +107,7 @@ public class BlockESP extends Module implements Render3DListener {
         Vec3d camPos = cam.getPos();
         int renderDistance = (int) range.getValue();
         BlockPos playerPos = mc.player.getBlockPos();
+        float fov = mc.options.getFov().getValue().intValue() + 45;
 
         Map<BlockPos, Color> blocksToRender = new HashMap<>();
 
@@ -113,10 +115,12 @@ public class BlockESP extends Module implements Render3DListener {
             for (int y = Math.max(mc.world.getBottomY(), playerPos.getY() - renderDistance); y <= Math.min(mc.world.getTopY() - 1, playerPos.getY() + renderDistance); y++) {
                 for (int z = playerPos.getZ() - renderDistance; z <= playerPos.getZ() + renderDistance; z++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    Block block = mc.world.getBlockState(pos).getBlock();
 
-                    if (oreBlocks.contains(block)) {
-                        blocksToRender.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
+                    if (isInFrustum(pos, cam, fov)) {
+                        Block block = mc.world.getBlockState(pos).getBlock();
+                        if (oreBlocks.contains(block)) {
+                            blocksToRender.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
+                        }
                     }
                 }
             }
@@ -137,6 +141,20 @@ public class BlockESP extends Module implements Render3DListener {
             }
             matrices.pop();
         });
+    }
+
+    private boolean isInFrustum(BlockPos pos, Camera cam, float fov) {
+        Vec3d camPos = cam.getPos();
+        Vec3d blockPos = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+
+        Vec3d lookVec = Vec3d.fromPolar(cam.getPitch(), cam.getYaw());
+        Vec3d toBlock = blockPos.subtract(camPos);
+
+        double dotProduct = toBlock.normalize().dotProduct(lookVec);
+
+        double angle = Math.toDegrees(Math.acos(dotProduct));
+
+        return angle < fov / 2.0;
     }
 
     private Box getFaceBox(Direction dir) {
