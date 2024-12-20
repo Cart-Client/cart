@@ -19,12 +19,15 @@ public final class ModuleButton {
     public int offset;
     public boolean extended;
     public int settingOffset;
+    private Color animatedColor;
+    private static final double ANIM_SPEED = 0.1;
 
     public ModuleButton(Window parent, Module module, int offset) {
         this.parent = parent;
         this.module = module;
         this.offset = offset;
         this.extended = false;
+        this.animatedColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220); // Initial state
 
         setupSettingsAndstuff();
     }
@@ -60,14 +63,26 @@ public final class ModuleButton {
         }
     }
 
+
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        Color backgroundColor = module.isEnabled() ? ThemeUtils.getMainColor(255) : new Color(35, 35, 35, 175);
-        context.fill(parent.getX(), parent.getY() + offset, parent.getX() + parent.getWidth(), parent.getY() + parent.getHeight() + offset, backgroundColor.getRGB());
-        TextRenderer.drawCenteredMinecraftText(module.getName(), context, parent.getX() + (parent.getWidth() / 2), parent.getY() + offset + 8, Color.WHITE.getRGB());
+        int x = parent.getX();
+        int y = parent.getY() + offset;
+        int width = parent.getWidth();
+        int height = parent.getHeight();
+
+        // --- Smooth Color Transition ---
+        Color targetColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220);
+        animatedColor = interpolateColor(animatedColor, targetColor, ANIM_SPEED);
+
+        context.fill(x, y, x + width, y + height, animatedColor.getRGB());
+
+
+        TextRenderer.drawCenteredMinecraftText(module.getName(), context, x + (width / 2), y + 8, ThemeUtils.getTextColor().getRGB());
 
         if (isHovered(mouseX, mouseY)) {
-            context.fill(parent.getX(), parent.getY() + offset, parent.getX() + parent.getWidth(), parent.getY() + parent.getHeight() + offset, new Color(255, 255, 255, 10).getRGB());
+            context.fill(x, y, x + width, y + height, new Color(255, 255, 255, 10).getRGB());
         }
+
 
         if (extended) {
             for (RenderableSetting renderableSetting : settings) {
@@ -75,6 +90,7 @@ public final class ModuleButton {
             }
         }
     }
+
 
     public void mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (extended) {
@@ -89,7 +105,6 @@ public final class ModuleButton {
             if (button == 0) {
                 module.toggle();
             }
-
             if (button == 1) {
                 extended = !extended;
                 parent.updateButtons();
@@ -114,5 +129,13 @@ public final class ModuleButton {
                 && mouseX < parent.getX() + parent.getWidth()
                 && mouseY > parent.getY() + offset
                 && mouseY < parent.getY() + offset + parent.getHeight();
+    }
+
+    private Color interpolateColor(Color startColor, Color endColor, double interpolationValue) {
+        int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * interpolationValue);
+        int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * interpolationValue);
+        int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * interpolationValue);
+        int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * interpolationValue);
+        return new Color(r, g, b, a);
     }
 }

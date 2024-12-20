@@ -10,11 +10,17 @@ import net.minecraft.client.gui.DrawContext;
 import java.awt.*;
 
 public final class CheckBox extends RenderableSetting {
+
     private final BooleanSetting setting;
+    private boolean targetState;
+    private float sliderXAnim;
+    private static final float ANIM_SPEED = 0.2f;
 
     public CheckBox(ModuleButton parent, Setting setting, int offset) {
         super(parent, setting, offset);
         this.setting = (BooleanSetting) setting;
+        this.targetState = ((BooleanSetting) setting).getValue();
+        this.sliderXAnim = ((BooleanSetting) setting).getValue() ? 1.0f : 0.0f;
     }
 
     @Override
@@ -30,41 +36,51 @@ public final class CheckBox extends RenderableSetting {
                 true
         );
 
+        int switchWidth = 30;
+        int switchHeight = 16;
+        int switchX = (parentX() + parentWidth()) - 35;
+        int switchY = (parentY() + parentOffset() + offset) + 6;
 
-        int boxX1 = (parentX() + parentWidth()) - 30;
-        int boxY1 = (parentY() + parentOffset() + offset) + 5;
-        int boxX2 = (parentX() + parentWidth() - 10);
-        int boxY2 = (parentY() + parentOffset() + offset + parentHeight()) - 5;
+        int baseColor = Color.DARK_GRAY.getRGB();
+        context.fill(switchX, switchY, switchX + switchWidth, switchY + switchHeight, baseColor);
 
-
-        context.fill(boxX1, boxY1, boxX2, boxY2, Color.darkGray.getRGB());
-
-
-        int centerX = boxX1 + (boxX2 - boxX1) / 2;
-        int centerY = boxY1 + (boxY2 - boxY1) / 2;
-
-
-        int checkmarkOffsetX = centerX - 5;
-        int checkmarkOffsetY = centerY - 6;
-
-
-        if (setting.getValue()) {
-            TextRenderer.drawMinecraftText(
-                    "✔",
-                    context,
-                    checkmarkOffsetX,
-                    checkmarkOffsetY,
-                    ThemeUtils.getMainColor(255).getRGB(),
-                    true
-            );
+        // --- Smooth Animation Logic ---
+        if(this.targetState != setting.getValue()){
+            setting.setValue(targetState);
         }
+
+        float targetX = targetState ? 1.0f : 0.0f;
+
+        sliderXAnim = interpolate(sliderXAnim, targetX, ANIM_SPEED);
+
+
+        int sliderX = switchX + (int) ( (switchWidth/2) * sliderXAnim);
+        int sliderSize = switchWidth / 2;
+
+
+        Color sliderColor = setting.getValue() ? ThemeUtils.getMainColor(255) : Color.LIGHT_GRAY;
+        int glowColor = new Color(sliderColor.getRed(), sliderColor.getGreen(), sliderColor.getBlue(), 70).getRGB();
+        int glowOffset = 2;
+
+        context.fill(sliderX - glowOffset, switchY + 1 - glowOffset, sliderX + sliderSize - 1 + glowOffset, switchY + switchHeight - 1 + glowOffset, glowColor);
+        context.fill(sliderX, switchY + 1, sliderX + sliderSize - 1, switchY + switchHeight - 1, sliderColor.getRGB());
     }
 
     @Override
     public void mouseClicked(double mouseX, double mouseY, int button) {
-        if (isHovered(mouseX, mouseY)) {
-            setting.toggle();
+        int switchWidth = 30;
+        int switchHeight = 16;
+        int switchX = (parentX() + parentWidth()) - 35;
+        int switchY = (parentY() + parentOffset() + offset) + 6;
+
+        if (mouseX >= switchX && mouseX <= switchX + switchWidth && mouseY >= switchY && mouseY <= switchY + switchHeight) {
+            targetState = !setting.getValue();
         }
         super.mouseClicked(mouseX, mouseY, button);
+    }
+
+
+    private float interpolate(float oldValue, float newValue, float interpolationValue) {
+        return (oldValue + (newValue - oldValue) * interpolationValue);
     }
 }

@@ -3,7 +3,6 @@ package com.ufo.cart.gui.components.settings;
 import com.ufo.cart.gui.components.ModuleButton;
 import com.ufo.cart.module.setting.NumberSetting;
 import com.ufo.cart.module.setting.Setting;
-import com.ufo.cart.utils.math.MathUtils;
 import com.ufo.cart.utils.render.TextRenderer;
 import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.gui.DrawContext;
@@ -13,47 +12,63 @@ import java.awt.*;
 public final class Slider extends RenderableSetting {
     public boolean dragging;
     private final NumberSetting setting;
+    private double targetValue;
+    private static final int TRACK_HEIGHT = 6;
+    private static final int HANDLE_SIZE = 8;
+    private static final double SMOOTH_FACTOR = 0.3;
+    private static final int HITBOX_EXPAND = 6;
 
     public Slider(ModuleButton parent, Setting setting, int offset) {
         super(parent, setting, offset);
         this.setting = (NumberSetting) setting;
+        this.targetValue = ((NumberSetting) setting).getValue();
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        float widthPercentage = (float) ((setting.getValue() - setting.getMin()) / (setting.getMax() - setting.getMin()));
-
-        if (dragging) {
-            float percent = Math.min(1, Math.max(0, (mouseX - parentX()) / (float) parentWidth()));
-            double propertyValue = interpolate(setting.getMin(), setting.getMax(), percent);
-            propertyValue = snapToIncrement(propertyValue, (float) setting.getIncrement());
-            setting.setValue(propertyValue);
+        if(dragging){
+            double currentValue = setting.getValue();
+            double smoothedValue = interpolate(currentValue, targetValue, SMOOTH_FACTOR);
+            setting.setValue(smoothedValue);
         }
 
-        int sliderY = parentY() + offset + parentOffset() + 28; // Adjust the Y-coordinate to lower the slider even more
-        Color sliderColor = ThemeUtils.getMainColor(255); // Use ThemeUtils for slider color
+        float widthPercentage = (float) ((setting.getValue() - setting.getMin()) / (setting.getMax() - setting.getMin()));
 
-        // Draw the background of the slider
-        context.fill(parentX(), sliderY, parentX() + parentWidth(), sliderY + 4, new Color(50, 50, 50).getRGB());
+        int switchX = parentX() + 5;
+        int switchY = parentY() + offset + parentOffset() + 22;
+        int switchWidth = parentWidth() - 10;
+        int handleX = switchX + (int) (switchWidth * widthPercentage);
+        int handleY = switchY;
 
-        // Draw the filled part of the slider
-        context.fill(parentX(), sliderY, parentX() + (int) (parentWidth() * widthPercentage), sliderY + 4, sliderColor.getRGB());
+        Color sliderColor = ThemeUtils.getMainColor(255);
 
-        // Draw the handle
-        int circleX = parentX() + (int) (parentWidth() * widthPercentage) - 5; // Increase the size of the handle
-        drawSquareHandle(context, circleX, parentY() + offset + parentOffset() + 25, 10, sliderColor);
+        context.fill(switchX, switchY, switchX + switchWidth, switchY + TRACK_HEIGHT, new Color(50, 50, 50).getRGB());
 
-        // Draw the text centered above the slider
+        context.fill(switchX, switchY, handleX, switchY + TRACK_HEIGHT, sliderColor.getRGB());
+
+        drawSquareHandle(context, handleX - HANDLE_SIZE / 2, handleY + TRACK_HEIGHT / 2 - HANDLE_SIZE / 2, HANDLE_SIZE, sliderColor);
+
         int textX = parentX() + parentWidth() / 2;
-        int textY = parentY() + offset + parentOffset() + 10; // Move the text lower
+        int textY = parentY() + offset + parentOffset() + 4;
         TextRenderer.drawCenteredMinecraftText(setting.getName() + ": " + setting.getValue(), context, textX, textY, Color.WHITE.getRGB());
     }
 
     @Override
     public void mouseClicked(double mouseX, double mouseY, int button) {
-        if (isHovered(mouseX, mouseY) && button == 0) {
+        int switchX = parentX() + 5;
+        int switchY = parentY() + offset + parentOffset() + 22;
+        int switchWidth = parentWidth() - 10;
+        int handleX = switchX + (int) (switchWidth * ((setting.getValue() - setting.getMin()) / (setting.getMax() - setting.getMin())));
+        int handleY = switchY;
+
+        int hitboxX1 = handleX - (HANDLE_SIZE / 2) - HITBOX_EXPAND;
+        int hitboxX2 = handleX + (HANDLE_SIZE / 2) + HITBOX_EXPAND;
+        int hitboxY1 = handleY - HITBOX_EXPAND;
+        int hitboxY2 = handleY + TRACK_HEIGHT + HITBOX_EXPAND;
+
+        if (mouseX >= hitboxX1 && mouseX <= hitboxX2 && mouseY >= hitboxY1 && mouseY <= hitboxY2 && button == 0) {
             dragging = true;
         }
         super.mouseClicked(mouseX, mouseY, button);
@@ -73,7 +88,7 @@ public final class Slider extends RenderableSetting {
             float percent = Math.min(1, Math.max(0, (float) (mouseX - parentX()) / parentWidth()));
             double propertyValue = interpolate(setting.getMin(), setting.getMax(), percent);
             propertyValue = snapToIncrement(propertyValue, (float) setting.getIncrement());
-            setting.setValue(propertyValue);
+            this.targetValue = propertyValue;
         }
         super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }

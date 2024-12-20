@@ -5,6 +5,7 @@ import com.ufo.cart.gui.components.ModuleButton;
 import com.ufo.cart.gui.components.settings.RenderableSetting;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
+import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -22,6 +23,12 @@ public final class Window {
     private final Category category;
     public boolean dragging, extended;
     int dragX, dragY;
+    private static final int BORDER_RADIUS = 8;
+
+    private double animationScale;
+    private static final double ANIM_SPEED = 0.1;
+
+
 
     public Window(int x, int y, int width, int height, Category category) {
         this.x = x;
@@ -31,6 +38,7 @@ public final class Window {
         this.extended = true;
         this.height = height;
         this.category = category;
+        this.animationScale = 0.0;
 
         int offset = height;
         for (Module module : Client.INSTANCE.getModuleManager().getModulesInCategory(category)) {
@@ -39,22 +47,47 @@ public final class Window {
         }
     }
 
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 
-        context.fill(x, y, x + width, y + height, new Color(0, 0, 0, 175).getRGB());
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        // --- Animate Window Scale ---
+        animationScale = Math.min(1, animationScale + ANIM_SPEED);
+        double animX = x - (width * (1 - animationScale) / 2.0);
+        double animY = y - (height * (1 - animationScale) / 2.0);
+        double animWidth = width * animationScale;
+        double animHeight = height * animationScale;
+
+        int totalHeight = height;
+        if (extended) {
+            for (ModuleButton moduleButton : moduleButtons) {
+                totalHeight += moduleButton.parent.getHeight();
+                if (moduleButton.extended) {
+                    for (RenderableSetting renderableSetting : moduleButton.settings) {
+                        totalHeight += height;
+                    }
+                }
+            }
+        }
+
+
+        drawRoundedRect(context, (int)animX - 2, (int)animY - 2, (int)animWidth + 4, totalHeight + 4, BORDER_RADIUS, ThemeUtils.getBorderColor().getRGB());
+
+
+        context.fill((int)animX, (int)animY, (int)(animX + animWidth), (int)(animY + animHeight), new Color(15, 15, 15, 220).getRGB());
+
 
         MatrixStack matrixStack = context.getMatrices();
         matrixStack.push();
 
         float scale = 2.0f;
         matrixStack.scale(scale, scale, 1.0f);
-        int scaledX = (int) ((x + (width / 2)) / scale);
-        int scaledY = (int) ((y + 6) / scale);
-        int scaledXRight = (int) ((x + getWidth() - 20) / scale);
+        int scaledX = (int) (((int)animX + (animWidth / 2)) / scale);
+        int scaledY = (int) (((int)animY + 6) / scale);
+        int scaledXRight = (int) (((int)animX + getWidth() - 20) / scale);
 
-        context.drawCenteredTextWithShadow(mc.textRenderer, category.name, scaledX, scaledY, Color.WHITE.getRGB());
 
-        context.drawText(mc.textRenderer, extended ? "+" : "-", scaledXRight, scaledY, Color.WHITE.getRGB(), true);
+        context.drawCenteredTextWithShadow(mc.textRenderer, category.name, scaledX, scaledY, ThemeUtils.getTextColor().getRGB());
+        context.drawText(mc.textRenderer, extended ? "-" : "+", scaledXRight, scaledY, ThemeUtils.getTextColor().getRGB(), true);
+
 
         matrixStack.pop();
 
@@ -63,12 +96,21 @@ public final class Window {
         for (ModuleButton moduleButton : moduleButtons) {
             moduleButton.render(context, mouseX, mouseY, delta);
         }
-
-        context.fill(x - 2, y - 2, x + width + 2, y, Color.WHITE.getRGB());
-        context.fill(x - 2, y, x, y + height, Color.WHITE.getRGB());
-        context.fill(x + width, y, x + width + 2, y + height, Color.WHITE.getRGB());
-        context.fill(x - 2, y + height, x + width + 2, y + height + 2, Color.WHITE.getRGB());
     }
+
+
+    private void drawRoundedRect(DrawContext context, int x, int y, int width, int height, int radius, int color) {
+        context.fill(x + radius, y, x + width - radius, y + height, color);
+        context.fill(x, y + radius, x + width, y + height - radius, color);
+
+
+        context.fill(x, y, x + radius, y + radius, color);
+        context.fill(x + width - radius, y, x + width, y + radius, color);
+        context.fill(x, y + height - radius, x + radius, y + height, color);
+        context.fill(x + width - radius, y + height - radius, x + width, y + height, color);
+
+    }
+
 
     public void mouseClicked(double mouseX, double mouseY, int button) {
         if (isHovered(mouseX, mouseY)) {
