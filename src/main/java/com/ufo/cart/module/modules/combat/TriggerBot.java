@@ -21,7 +21,7 @@ public class TriggerBot extends Module implements TickListener {
     private final BooleanSetting swordOnly = new BooleanSetting("Sword Only", false);
     private final NumberSetting cooldownProgress = new NumberSetting("Cooldown Progress", 0.0, 1.0, 1.0, 0.01);
     private final RangeSetting attackDelay = new RangeSetting("Attack Delay", 0, 20, 0, 1, 1);
-    private final NumberSetting maceDelay = new NumberSetting("Mace Delay", 10.0, 0.0, 50.0, 1.0);
+    private final NumberSetting maceDelay = new NumberSetting("Mace Delay", 0.0, 100.0, 50.0, 1.0);
     private int attackCooldown = 0;
     private final Random random = new Random();
 
