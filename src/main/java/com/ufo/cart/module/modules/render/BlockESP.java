@@ -27,6 +27,7 @@ public class BlockESP extends Module implements Render3DListener {
 
     private final NumberSetting opacity = new NumberSetting("Opacity", 0.0, 255.0, 50, 1);
     private final NumberSetting range = new NumberSetting("Range", 10, 100, 25, 1);
+    private final NumberSetting updateTime = new NumberSetting("Update Rate", 0.0, 60.0, 1.0, 0.1);
 
     private final List<Block> oreBlocks = new ArrayList<>();
     private final Map<Block, Color> blockColors = new HashMap<>();
@@ -35,12 +36,10 @@ public class BlockESP extends Module implements Render3DListener {
     private BlockPos lastPlayerPos = null;
     private int lastRenderDistance = -1;
     private long lastUpdateTime = 0;
-    private static final long CACHE_UPDATE_INTERVAL = 1000;
 
     public BlockESP() {
-        super("Block ESP", "Renders blocks through walls.", 0, Category.RENDER);
-        addSetting(opacity);
-        addSetting(range);
+        super("Block ESP", "Renders blocks through walls. WARNING: Rapes FPS.", 0, Category.RENDER);
+        addSettings(opacity, range, updateTime);
 
         oreBlocks.add(Blocks.COAL_ORE);
         oreBlocks.add(Blocks.IRON_ORE);
@@ -60,6 +59,7 @@ public class BlockESP extends Module implements Render3DListener {
         oreBlocks.add(Blocks.DEEPSLATE_COPPER_ORE);
         oreBlocks.add(Blocks.NETHER_GOLD_ORE);
         oreBlocks.add(Blocks.ANCIENT_DEBRIS);
+        oreBlocks.add(Blocks.COPPER_ORE);
 
         blockColors.put(Blocks.COAL_ORE, Color.black);
         blockColors.put(Blocks.IRON_ORE, new Color(186, 152, 128));
@@ -106,6 +106,7 @@ public class BlockESP extends Module implements Render3DListener {
 
     @Override
     public void onRender(Render3DEvent event) {
+        final long CACHE_UPDATE_INTERVAL = (long) (updateTime.getValue() * 1000);
         if (mc.world == null || mc.player == null) return;
 
         MatrixStack matrices = event.matrices;
@@ -116,46 +117,61 @@ public class BlockESP extends Module implements Render3DListener {
         Vec3d camPos = cam.getPos();
         int renderDistance = (int) range.getValue();
         BlockPos playerPos = mc.player.getBlockPos();
+        float fov = mc.options.getFov().getValue().intValue() + 45;
 
         long currentTime = System.currentTimeMillis();
         if (lastPlayerPos == null || !lastPlayerPos.equals(playerPos) || lastRenderDistance != renderDistance || currentTime - lastUpdateTime >= CACHE_UPDATE_INTERVAL) {
-            updateCache(playerPos, renderDistance);
+            updateCache(playerPos, renderDistance, cam, fov);
             lastPlayerPos = playerPos;
             lastRenderDistance = renderDistance;
             lastUpdateTime = currentTime;
         }
 
         cachedBlocks.forEach((pos, color) -> {
-            matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
-            matrices.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
+            if (isInFrustum(pos, cam, fov)) {
+                matrices.push();
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
+                matrices.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
 
-            for (Direction dir : Direction.values()) {
-                BlockPos neighborPos = pos.offset(dir);
-                if (mc.world.getBlockState(neighborPos).isAir() || !mc.world.getBlockState(neighborPos).isOpaqueFullCube(mc.world, neighborPos)) {
-                    Box faceBox = getFaceBox(dir);
-                    Render3D.render3DBox(matrices, faceBox, color, opacity.getValueInt(), 1f);
+                for (Direction dir : Direction.values()) {
+                    BlockPos neighborPos = pos.offset(dir);
+                    if (mc.world.getBlockState(neighborPos).isAir() || !mc.world.getBlockState(neighborPos).isOpaqueFullCube(mc.world, neighborPos)) {
+                        Box faceBox = getFaceBox(dir);
+                        Render3D.render3DBox(matrices, faceBox, color, opacity.getValueInt(), 1f);
+                    }
                 }
+                matrices.pop();
             }
-            matrices.pop();
         });
     }
 
-    private void updateCache(BlockPos playerPos, int renderDistance) {
+    private void updateCache(BlockPos playerPos, int renderDistance, Camera cam, float fov) {
         cachedBlocks.clear();
         for (int x = playerPos.getX() - renderDistance; x <= playerPos.getX() + renderDistance; x++) {
             for (int y = Math.max(mc.world.getBottomY(), playerPos.getY() - renderDistance); y <= Math.min(mc.world.getTopY() - 1, playerPos.getY() + renderDistance); y++) {
                 for (int z = playerPos.getZ() - renderDistance; z <= playerPos.getZ() + renderDistance; z++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    Block block = mc.world.getBlockState(pos).getBlock();
+                    if (isInFrustum(pos, cam, fov)) {
+                        Block block = mc.world.getBlockState(pos).getBlock();
 
-                    if (oreBlocks.contains(block)) {
-                        cachedBlocks.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
+                        if (oreBlocks.contains(block)) {
+                            cachedBlocks.put(pos, blockColors.getOrDefault(block, ThemeUtils.getMainColor()));
+                        }
                     }
                 }
             }
         }
+    }
+
+    private boolean isInFrustum(BlockPos pos, Camera cam, float fov) {
+        Vec3d camPos = cam.getPos();
+        Vec3d blockPos = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        Vec3d lookVec = Vec3d.fromPolar(cam.getPitch(), cam.getYaw());
+        Vec3d toBlock = blockPos.subtract(camPos);
+        double dotProduct = toBlock.normalize().dotProduct(lookVec);
+        double angle = Math.toDegrees(Math.acos(dotProduct));
+        return angle < fov / 2.0;
     }
 
     private Box getFaceBox(Direction dir) {

@@ -38,41 +38,51 @@ public class ESP extends Module implements Render3DListener {
 
     @Override
     public void onRender(Render3DEvent event) {
-        if (mc.world != null && mc.player != null) {
-            for (PlayerEntity player : mc.world.getPlayers()) {
-                if (player != mc.player && !player.isRemoved()) {
-                    MatrixStack matrices = event.matrices;
-                    matrices.push();
+        if (mc.world == null || mc.player == null) return;
 
-                    float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false);
+        MatrixStack matrices = event.matrices;
+        Camera cam = mc.getBlockEntityRenderDispatcher().camera;
+        if (cam == null) return;
 
-                    Vec3d interpPos = Render3D.getEntityPositionInterpolated(player, tickDelta);
+        float fov = mc.options.getFov().getValue() + 45;
 
-                    Camera cam = mc.getBlockEntityRenderDispatcher().camera;
-                    if (cam != null) {
-                        Vec3d camPos = cam.getPos();
+        for (PlayerEntity player : mc.world.getPlayers()) {
+            if (player == mc.player || player.isRemoved()) continue;
 
-                        // YOU HAVE TO APPLY THE FUCKING ROTATIONS FIRST
-                        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
-                        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
+            float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false);
+            Vec3d interpPos = Render3D.getEntityPositionInterpolated(player, tickDelta);
 
-                        // FUCK RENDERING FUCK RENDERING FUCK RENDERING
-                        matrices.translate(interpPos.x - camPos.x, interpPos.y - camPos.y, interpPos.z - camPos.z);
-                    }
+            // Check if the entity is within the frustum
+            if (isInFrustum(interpPos, cam, fov)) {
+                matrices.push();
 
-                    Box playerBox = new Box(
-                            -player.getWidth() / 2,
-                            0,
-                            -player.getWidth() / 2,
-                            player.getWidth() / 2,
-                            player.getHeight() + 0.1,
-                            player.getWidth() / 2
-                    );
+                Vec3d camPos = cam.getPos();
 
-                    Render3D.render3DBox(matrices, playerBox, ThemeUtils.getMainColor(), opacity.getValueInt(), 1f);
-                    matrices.pop();
-                }
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cam.getPitch()));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cam.getYaw() + 180.0F));
+                matrices.translate(interpPos.x - camPos.x, interpPos.y - camPos.y, interpPos.z - camPos.z);
+
+                Box playerBox = new Box(
+                        -player.getWidth() / 2,
+                        0,
+                        -player.getWidth() / 2,
+                        player.getWidth() / 2,
+                        player.getHeight() + 0.1,
+                        player.getWidth() / 2
+                );
+
+                Render3D.render3DBox(matrices, playerBox, ThemeUtils.getMainColor(), opacity.getValueInt(), 1f);
+                matrices.pop();
             }
         }
+    }
+
+    private boolean isInFrustum(Vec3d pos, Camera cam, float fov) {
+        Vec3d camPos = cam.getPos();
+        Vec3d lookVec = Vec3d.fromPolar(cam.getPitch(), cam.getYaw());
+        Vec3d toPos = pos.subtract(camPos);
+        double dotProduct = toPos.normalize().dotProduct(lookVec);
+        double angle = Math.toDegrees(Math.acos(dotProduct));
+        return angle < fov / 2.0;
     }
 }
