@@ -12,7 +12,7 @@ public class HUD extends Module {
 
     public HUD() {
         super("HUD", "Various HUD Elements.", 0, Category.RENDER);
-        addSettings(arrayList, whichSide, colorMode);
+        addSettings(arrayList, whichSide);
     }
 
     @Override
