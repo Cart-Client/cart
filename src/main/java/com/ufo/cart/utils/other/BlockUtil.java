@@ -1,59 +1,92 @@
 package com.ufo.cart.utils.other;
 
-import com.ufo.cart.Client;
+import com.ufo.cart.utils.other.Rotation;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RespawnAnchorBlock;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 
-import java.util.function.UnaryOperator;
+import java.util.List;
 import java.util.stream.Stream;
 
+import static com.ufo.cart.Client.mc;
+
+
 public final class BlockUtil {
-    public static boolean isBlockType(final BlockPos pos, final Block block) {
-        return Client.mc.world.getBlockState(pos).getBlock() == block;
+    public static boolean isBlock(BlockPos pos, Block block) {
+        return mc.world.getBlockState(pos).getBlock() == block;
     }
 
-    public static boolean canExplodeAnchor(final BlockPos pos) {
-        return isBlockType(pos, Blocks.RESPAWN_ANCHOR) && Client.mc.world.getBlockState(pos).get(RespawnAnchorBlock.CHARGES) != 0;
+    public static void rotateToBlock(BlockPos pos) {
+        assert mc.player != null; //WTF!!!
+        Rotation rotation = RotationUtils.getDirection(mc.player, pos.toCenterPos());
+
+        mc.player.setPitch((float) rotation.pitch());
+        mc.player.setYaw((float) rotation.yaw());
     }
 
-    public static boolean shouldCharge(final BlockPos pos) {
-        return isBlockType(pos, Blocks.RESPAWN_ANCHOR) && Client.mc.world.getBlockState(pos).get(RespawnAnchorBlock.CHARGES) == 0;
+    public static boolean isAnchorCharged(BlockPos pos) {
+        if (isBlock(pos, Blocks.RESPAWN_ANCHOR)) {
+            return mc.world.getBlockState(pos).get(RespawnAnchorBlock.CHARGES) != 0;
+        }
+        return false;
     }
 
-    public static Stream method260(final BlockPos from, final BlockPos to) {
-        final BlockPos seed = new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
-        final BlockPos blockPos = new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
-        return Stream.iterate(seed, lol -> method261(from, to, blockPos)).limit((long) (blockPos.getX() - seed.getX() + 1) * (blockPos.getY() - seed.getY() + 1) * (blockPos.getZ() - seed.getZ() + 1));
+    public static boolean isAnchorNotCharged(BlockPos pos) {
+        if (isBlock(pos, Blocks.RESPAWN_ANCHOR)) {
+            return mc.world.getBlockState(pos).get(RespawnAnchorBlock.CHARGES) == 0;
+        }
+
+        return false;
     }
 
-    private static BlockPos method261(final BlockPos blockPos, final BlockPos blockPos2, final BlockPos blockPos3) {
-        final int n = 0;
-        int n2 = blockPos3.getX();
-        int n3 = blockPos3.getY();
-        int getZ = blockPos3.getZ();
-        final int n4 = n;
-        int n6;
-        final int n5 = n6 = ++n2;
-        int n8;
-        final int n7 = n8 = blockPos.getX();
-        if (n4 == 0) {
-            if (n5 > n7) {
-                n2 = blockPos2.getX();
-                ++n3;
+    public static boolean canPlaceBlockClient(BlockPos block) {
+        BlockPos up = block.up();
+
+        if(!mc.world.isAir(up))
+            return false;
+
+        double x = up.getX();
+        double y = up.getY();
+        double z = up.getZ();
+
+        List<Entity> list = mc.world.getOtherEntities(null, new Box(x, y, z, x + 1, y + 1, z + 1));
+        list.removeIf(entity -> entity instanceof ItemEntity);
+
+        return list.isEmpty();
+    }
+
+    public static Stream<BlockPos> getAllInBoxStream(BlockPos from, BlockPos to) {
+        BlockPos min = new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
+        BlockPos max = new BlockPos(Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
+
+        Stream<BlockPos> stream = Stream.iterate(min, (pos) -> {
+            int x = pos.getX();
+            int y = pos.getY();
+            int z = pos.getZ();
+
+            ++x;
+
+            if (x > max.getX()) {
+                x = min.getX();
+                ++y;
             }
-            final int n9;
-            n6 = (n9 = n3);
-            final int method_10261;
-            n8 = blockPos.getY();
-        }
-        if (n5 > n7) {
-            n3 = blockPos2.getY();
-            ++getZ;
-        }
-        n6 = getZ;
-        n8 = blockPos.getZ();
-        return new BlockPos(n2, n3, getZ);
+
+            if (y > max.getY()) {
+                y = min.getY();
+                ++z;
+            }
+
+            if (z > max.getZ())
+                throw new IllegalStateException("Stream limit didn't work.");
+            else return new BlockPos(x, y, z);
+        });
+        int limit = (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1);
+
+        return stream.limit(limit);
     }
 }

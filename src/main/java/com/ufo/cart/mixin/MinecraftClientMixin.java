@@ -2,9 +2,10 @@ package com.ufo.cart.mixin;
 
 import com.ufo.cart.event.EventBus;
 import com.ufo.cart.event.events.*;
-import com.ufo.cart.utils.other.Mouse;
+import com.ufo.cart.utils.other.MouseSimulation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,8 +37,8 @@ public class MinecraftClientMixin {
         if (event.isCancelled()) {
             ci.cancel();
         }
-        if (Mouse.isKeyPressed(1)) {
-            Mouse.inputs.put(1, false);
+        if (MouseSimulation.isMouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_RIGHT)) {
+            MouseSimulation.mouseButtons.put(GLFW.GLFW_MOUSE_BUTTON_RIGHT, false);
             ci.cancel();
         }
     }
@@ -49,8 +50,8 @@ public class MinecraftClientMixin {
         if (event.isCancelled()) {
             cir.setReturnValue(false);
         }
-        if (Mouse.isKeyPressed(0)) {
-            Mouse.inputs.put(0, false);
+        if (MouseSimulation.isMouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+            MouseSimulation.mouseButtons.put(GLFW.GLFW_MOUSE_BUTTON_LEFT, false);
             cir.setReturnValue(false);
         }
     }
@@ -62,8 +63,8 @@ public class MinecraftClientMixin {
         if (event.isCancelled()) {
             ci.cancel();
         }
-        if (Mouse.isKeyPressed(0)) {
-            Mouse.inputs.put(0, false);
+        if (MouseSimulation.isMouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+            MouseSimulation.mouseButtons.put(GLFW.GLFW_MOUSE_BUTTON_LEFT, false);
             ci.cancel();
         }
     }

@@ -4,6 +4,7 @@ import com.ufo.cart.Client;
 import com.ufo.cart.module.modules.client.ClickGUI;
 import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.modules.combat.AimAssist;
+import com.ufo.cart.module.modules.combat.cw;
 import com.ufo.cart.module.modules.combat.Reach;
 import com.ufo.cart.module.modules.combat.TriggerBot;
 import com.ufo.cart.module.modules.misc.CrystalOptimizer;
@@ -81,6 +82,7 @@ public final class ModuleManager implements EventListener {
         add(new FastPlace());
         add(new ESP());
         add(new BlockESP());
+        add(new cw());
     }
 
     public void add(Module module) {
