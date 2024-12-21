@@ -13,6 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
     @Inject(at = @At("HEAD"), method = "renderPlayerList(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", cancellable = true)
     public void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        Hud.renderArrayList(tickCounter, context, new MatrixStack());
+        Hud.renderArrayList(context);
     }
 }
