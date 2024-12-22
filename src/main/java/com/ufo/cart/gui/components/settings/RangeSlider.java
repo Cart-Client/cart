@@ -33,7 +33,6 @@ public class RangeSlider extends RenderableSetting {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        // --- Smooth transition logic ---
         if (draggingMin || draggingMax) {
             double currentMin = setting.getValueMin();
             double currentMax = setting.getValueMax();

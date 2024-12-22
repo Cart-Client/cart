@@ -44,7 +44,6 @@ public final class CheckBox extends RenderableSetting {
         int baseColor = Color.DARK_GRAY.getRGB();
         context.fill(switchX, switchY, switchX + switchWidth, switchY + switchHeight, baseColor);
 
-        // --- Smooth Animation Logic ---
         if(this.targetState != setting.getValue()){
             setting.setValue(targetState);
         }

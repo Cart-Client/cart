@@ -27,11 +27,9 @@ public final class EventBus {
         sortedListeners.removeIf(Objects::isNull);
         sortedListeners.sort(Comparator.comparingInt(PriorityListener::getPriority)); // Sort by priority
 
-        // Extract the actual listeners and collect them into a list
         ArrayList<EventListener> actualListeners = new ArrayList<>();
         sortedListeners.forEach(priorityListener -> actualListeners.add(priorityListener.getListener()));
 
-        // Now pass the list of actual listeners to the event
         event.callListeners(actualListeners);
     }
 
@@ -47,7 +45,6 @@ public final class EventBus {
     public void unregister(final Class<?> type, final EventListener listener) {
         final ArrayList<PriorityListener> list = this.listeners.get(type);
         if (list != null) {
-            // Unregister the actual listener (wrapped in PriorityListener)
             list.removeIf(priorityListener -> priorityListener.getListener().equals(listener));
         }
     }

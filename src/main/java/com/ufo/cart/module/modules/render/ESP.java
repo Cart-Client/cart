@@ -52,7 +52,6 @@ public class ESP extends Module implements Render3DListener {
             float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false);
             Vec3d interpPos = Render3D.getEntityPositionInterpolated(player, tickDelta);
 
-            // Check if the entity is within the frustum
             if (isInFrustum(interpPos, cam, fov)) {
                 matrices.push();
 
