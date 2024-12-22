@@ -47,7 +47,7 @@ public class cw extends Module implements TickListener, ItemUseListener {
     public boolean isCrystalling;
 
     public cw() {
-        super("cw", "fast crystals buzzo", -1, Category.COMBAT);
+        super("Auto Crystal", "Automatically places and breaks crystals.", -1, Category.COMBAT);
         addSettings(placeInterval, breakInterval, placeSuccessRate, breakSuccessRate, haltOnKill, fakeHandSwing, simulateClicks, damageCheck, ignoreWeakness, particleProbability);
     }
 

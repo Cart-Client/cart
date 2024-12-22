@@ -10,9 +10,15 @@ base {
 	archivesName = project.archives_base_name
 }
 
+
+
 repositories {
-	// Use the normal Maven Central repository
 	mavenCentral()
+	google()
+	gradlePluginPortal()
+	maven {
+		url "https://packages.jetbrains.team/maven/p/skija/maven"
+	}
 }
 
 dependencies {
@@ -33,6 +39,8 @@ dependencies {
 	// Lombok dependency (upgraded to the latest stable version)
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+	implementation "org.jetbrains.skija:skija-windows:0.93.6"
 }
 
 processResources {
