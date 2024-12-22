@@ -22,8 +22,6 @@ public class Hud {
     private static final int MODULE_SPACING = MODULE_HEIGHT + MODULE_PADDING;
     private static final int SIDE_BAR_WIDTH = 2;
     private static final int SIDE_BAR_OFFSET = SIDE_BAR_WIDTH + MODULE_PADDING;
-    private static final int WATERMARK_X = 8;
-    private static final int WATERMARK_Y = 10;
     private static final int MODULE_START_Y = 23;
 
     public static void renderArrayList(DrawContext context) {
@@ -33,12 +31,7 @@ public class Hud {
         if (hudModule == null || !hudModule.isEnabled() || !hudModule.arrayList.getValue()) return;
         if (themeModule == null) return;
 
-        renderWatermark(context, themeModule);
         renderModuleList(context, hudModule, themeModule);
-    }
-
-    private static void renderWatermark(DrawContext context, Theme themeModule) {
-        TextRenderer.drawMediumMinecraftText("Cart", context, WATERMARK_X, WATERMARK_Y, themeModule.getColor(0).getRGB(), true);
     }
 
     private static void renderModuleList(DrawContext context, HUD hudModule, Theme themeModule) {
@@ -58,13 +51,17 @@ public class Hud {
 
     private static void renderModule(DrawContext context, Module module, String side, int screenWidth, int yOffset, Color moduleColor) {
         int textWidth = mc.textRenderer.getWidth(module.getName());
+        HUD hudModule = Client.getInstance().getModuleManager().getModule(HUD.class);
 
         int x;
         if (side.equals("Left")) {
-            x = 10;
+            x = 6;
+            if (!hudModule.watermark.getValue()) {
+                yOffset -=19;
+            }
         } else {
-            x = screenWidth - textWidth - 10;
-            yOffset -= 13;
+            x = screenWidth - textWidth - 6;
+            yOffset -=19;
         }
 
         // background
@@ -79,7 +76,16 @@ public class Hud {
                 moduleColor.getRGB()
         );
 
+        // if text color should be white or theme
+        Color textColor = Color.white;
+        if (hudModule.textColor.getMode() == "White") {
+            textColor = Color.white;
+        }
+        else {
+            textColor = moduleColor;
+        }
+
         // modules
-        TextRenderer.drawSmallMinecraftText(module.getName(), context, x * 2, yOffset * 2, moduleColor.getRGB(), true);
+        TextRenderer.drawSmallMinecraftText(module.getName(), context, x * 2, yOffset * 2, textColor.getRGB(), true);
     }
 }

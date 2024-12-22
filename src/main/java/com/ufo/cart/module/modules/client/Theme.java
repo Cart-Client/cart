@@ -9,9 +9,9 @@ import com.ufo.cart.module.setting.NumberSetting;
 import java.awt.*;
 
 public class Theme extends Module {
-    public static final NumberSetting red = new NumberSetting("Red", 0, 255, 193, 1);
-    public static final NumberSetting green = new NumberSetting("Green", 0, 255, 193, 1);
-    public static final NumberSetting blue = new NumberSetting("Blue", 0, 255, 193, 1);
+    public static final NumberSetting red = new NumberSetting("Red", 0, 255, 255, 1);
+    public static final NumberSetting green = new NumberSetting("Green", 0, 255, 0, 1);
+    public static final NumberSetting blue = new NumberSetting("Blue", 0, 255, 255, 1);
     public static final NumberSetting alpha = new NumberSetting("Alpha", 0, 255, 255, 1);
     public final ModeSetting colorMode = new ModeSetting("Theme", "Custom", "Custom", "Rainbow");
 

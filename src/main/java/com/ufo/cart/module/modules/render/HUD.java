@@ -9,11 +9,12 @@ public class HUD extends Module {
 
     public final BooleanSetting arrayList = new BooleanSetting("Array List", true);
     public final ModeSetting whichSide = new ModeSetting("Side", "Left", "Left", "Right");
-    public final BooleanSetting logo = new BooleanSetting("Logo", false);
+    public final ModeSetting textColor = new ModeSetting("Text Color", "White", "White", "Theme");
+    public final BooleanSetting watermark = new BooleanSetting("Watermark", true);
 
     public HUD() {
         super("HUD", "Various HUD Elements.", 0, Category.RENDER);
-        addSettings(arrayList, whichSide, logo);
+        addSettings(arrayList, whichSide, textColor, watermark);
     }
 
     @Override
