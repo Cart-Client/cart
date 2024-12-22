@@ -26,7 +26,7 @@ public class Theme extends Module {
         super.onEnable();
     }
 
-    public Color getColorForModule(int index) {
+    public Color getColor(int index) {
         if (colorMode.getMode().equals("Rainbow")) {
             float hue = (System.currentTimeMillis() % 3600 + (index * 50)) / 3600f;
             return Color.getHSBColor(hue, 1.0f, 1.0f);

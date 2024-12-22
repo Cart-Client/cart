@@ -7,7 +7,6 @@ import com.ufo.cart.module.modules.render.HUD;
 import net.minecraft.client.gui.DrawContext;
 
 import com.ufo.cart.utils.render.TextRenderer;
-import net.minecraft.util.Identifier;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -39,7 +38,7 @@ public class Hud {
     }
 
     private static void renderWatermark(DrawContext context, Theme themeModule) {
-        TextRenderer.drawMediumMinecraftText("Cart", context, WATERMARK_X, WATERMARK_Y, themeModule.getColorForModule(0).getRGB(), true);
+        TextRenderer.drawMediumMinecraftText("Cart", context, WATERMARK_X, WATERMARK_Y, themeModule.getColor(0).getRGB(), true);
     }
 
     private static void renderModuleList(DrawContext context, HUD hudModule, Theme themeModule) {
@@ -52,7 +51,7 @@ public class Hud {
         int yOffset = MODULE_START_Y;
         for (int i = 0; i < enabledModules.size(); i++) {
             Module module = enabledModules.get(i);
-            renderModule(context, module, side, screenWidth, yOffset, themeModule.getColorForModule(i));
+            renderModule(context, module, side, screenWidth, yOffset, themeModule.getColor(i));
             yOffset += MODULE_SPACING;
         }
     }

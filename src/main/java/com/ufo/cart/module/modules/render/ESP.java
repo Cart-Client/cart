@@ -1,9 +1,11 @@
 package com.ufo.cart.module.modules.render;
 
+import com.ufo.cart.Client;
 import com.ufo.cart.event.events.Render3DEvent;
 import com.ufo.cart.event.listeners.Render3DListener;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
+import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.setting.NumberSetting;
 import com.ufo.cart.utils.render.Render3D;
 import com.ufo.cart.utils.render.ThemeUtils;
@@ -69,8 +71,9 @@ public class ESP extends Module implements Render3DListener {
                         player.getHeight() + 0.1,
                         player.getWidth() / 2
                 );
+                Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
-                Render3D.render3DBox(matrices, playerBox, ThemeUtils.getMainColor(), opacity.getValueInt(), 1f);
+                Render3D.render3DBox(matrices, playerBox, themeModule.getColor(0), opacity.getValueInt(), 1f);
                 matrices.pop();
             }
         }
