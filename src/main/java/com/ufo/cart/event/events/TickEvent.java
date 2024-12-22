@@ -17,6 +17,6 @@ public class TickEvent extends Event {
 
     @Override
     public Class<?> getClazz() {
-        return TickListener.class; // This is the issue
+        return TickListener.class;
     }
 }

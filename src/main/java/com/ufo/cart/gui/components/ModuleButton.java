@@ -70,7 +70,6 @@ public final class ModuleButton {
         int width = parent.getWidth();
         int height = parent.getHeight();
 
-        // --- Smooth Color Transition ---
         Color targetColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220);
         animatedColor = interpolateColor(animatedColor, targetColor, ANIM_SPEED);
 

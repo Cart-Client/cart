@@ -159,7 +159,6 @@ public class Render3D {
     }
 
 
-    // Graciously yoinked from aoba
     public static Vec3d getEntityPositionInterpolated(Entity entity, float delta) {
         return new Vec3d(MathHelper.lerp(delta, entity.prevX, entity.getX()),
                 MathHelper.lerp(delta, entity.prevY, entity.getY()),

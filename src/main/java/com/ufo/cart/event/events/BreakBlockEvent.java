@@ -1,6 +1,3 @@
-// 
-// Decompiled by the rizzer xd
-// 
 
 package com.ufo.cart.event.events;
 
