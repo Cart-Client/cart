@@ -35,7 +35,7 @@ public class FastPlace extends Module implements TickListener {
         if (!(mc.player.getMainHandStack().getItem() instanceof BlockItem)) {
             MCI.setItemUseCooldown(4);
         }
-        
+
         MCI.setItemUseCooldown(0);
     }
 }
