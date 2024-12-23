@@ -6,7 +6,7 @@ import com.ufo.cart.event.listeners.TickListener;
 
 public final class AutoSprint extends Module implements TickListener {
     public AutoSprint() {
-        super("Auto Sprint", "Makes your player sprint automatically.", 0, Category.PLAYER);
+        super("Sprint", "Makes you sprint all the time. This MIGHT get you banned on some servers. Just use Toggle Sprint.", 0, Category.PLAYER);
         addSetting(omni);
     }
 
