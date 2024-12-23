@@ -60,7 +60,7 @@ public final class CheckBox extends RenderableSetting {
         int sliderSize = switchWidth / 2;
 
 
-        Color sliderColor = setting.getValue() ? themeModule.getColor(0)) : Color.LIGHT_GRAY;
+        Color sliderColor = setting.getValue() ? themeModule.getColor(0) : Color.LIGHT_GRAY;
         int glowColor = new Color(sliderColor.getRed(), sliderColor.getGreen(), sliderColor.getBlue(), 70).getRGB();
         int glowOffset = 2;
 

@@ -22,7 +22,7 @@ public final class ModuleButton {
     public boolean extended;
     public int settingOffset;
     private Color animatedColor;
-    private static final double ANIM_SPEED = 1.0;
+    private static final double ANIM_SPEED = 0.5;
     Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
     public ModuleButton(Window parent, Module module, int offset) {
@@ -30,7 +30,7 @@ public final class ModuleButton {
         this.module = module;
         this.offset = offset;
         this.extended = false;
-        this.animatedColor = module.isEnabled() ? themeModule.getColor(0) : new Color(25, 25, 25, 220); // Initial state
+        this.animatedColor = module.isEnabled() ? themeModule.getColor(0) : new Color(25, 25, 25, 255); // Initial state
 
         setupSettingsAndstuff();
     }
@@ -73,7 +73,7 @@ public final class ModuleButton {
         int width = parent.getWidth();
         int height = parent.getHeight();
 
-        Color targetColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220);
+        Color targetColor = module.isEnabled() ? themeModule.getColor(0) : new Color(25, 25, 25, 255);
         animatedColor = interpolateColor(animatedColor, targetColor, ANIM_SPEED);
 
         context.fill(x, y, x + width, y + height, animatedColor.getRGB());
