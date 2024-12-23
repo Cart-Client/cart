@@ -5,6 +5,7 @@ import com.ufo.cart.mixin.interfaces.MinecraftClientInterface;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.BlockItem;
 
 public class FastPlace extends Module implements TickListener {
 
@@ -29,6 +30,12 @@ public class FastPlace extends Module implements TickListener {
 
     @Override
     public void onTick() {
+
+        assert mc.player != null;
+        if (!(mc.player.getMainHandStack().getItem() instanceof BlockItem)) {
+            return;
+        }
+
         MCI.setItemUseCooldown(0);
     }
 }
