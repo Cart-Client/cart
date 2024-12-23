@@ -1,9 +1,7 @@
 package com.ufo.cart.gui.components;
 
-import com.ufo.cart.Client;
 import com.ufo.cart.gui.components.settings.*;
 import com.ufo.cart.module.Module;
-import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.setting.*;
 import com.ufo.cart.utils.render.TextRenderer;
 import com.ufo.cart.utils.render.ThemeUtils;
@@ -22,15 +20,14 @@ public final class ModuleButton {
     public boolean extended;
     public int settingOffset;
     private Color animatedColor;
-    private static final double ANIM_SPEED = 0.5;
-    Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
+    private static final double ANIM_SPEED = 0.1;
 
     public ModuleButton(Window parent, Module module, int offset) {
         this.parent = parent;
         this.module = module;
         this.offset = offset;
         this.extended = false;
-        this.animatedColor = module.isEnabled() ? themeModule.getColor(0) : new Color(25, 25, 25, 255); // Initial state
+        this.animatedColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220); // Initial state
 
         setupSettingsAndstuff();
     }
@@ -73,7 +70,7 @@ public final class ModuleButton {
         int width = parent.getWidth();
         int height = parent.getHeight();
 
-        Color targetColor = module.isEnabled() ? themeModule.getColor(0) : new Color(25, 25, 25, 255);
+        Color targetColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220);
         animatedColor = interpolateColor(animatedColor, targetColor, ANIM_SPEED);
 
         context.fill(x, y, x + width, y + height, animatedColor.getRGB());

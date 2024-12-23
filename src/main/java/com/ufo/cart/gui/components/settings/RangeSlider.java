@@ -1,12 +1,11 @@
 package com.ufo.cart.gui.components.settings;
 
-import com.ufo.cart.Client;
 import com.ufo.cart.gui.components.ModuleButton;
-import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.setting.RangeSetting;
 import com.ufo.cart.module.setting.Setting;
 import com.ufo.cart.utils.math.MathUtils;
 import com.ufo.cart.utils.render.TextRenderer;
+import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.MathHelper;
 
@@ -22,7 +21,6 @@ public class RangeSlider extends RenderableSetting {
     private static final int HANDLE_SIZE = 8;
     private static final double SMOOTH_FACTOR = 0.3;
     private static final int HITBOX_EXPAND = 6;
-    Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
     public RangeSlider(ModuleButton parent, Setting setting, int offset) {
         super(parent, setting, offset);
@@ -56,7 +54,7 @@ public class RangeSlider extends RenderableSetting {
         int minHandleX = switchX + (int) (switchWidth * offsetXMin);
         int maxHandleX = switchX + (int) (switchWidth * offsetXMax);
 
-        Color sliderColor = themeModule.getColor(0);
+        Color sliderColor = ThemeUtils.getMainColor(255);
 
         context.fill(switchX, switchY, switchX + switchWidth, switchY + TRACK_HEIGHT, new Color(50, 50, 50).getRGB());
 
