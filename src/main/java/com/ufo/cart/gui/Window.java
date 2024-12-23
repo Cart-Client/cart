@@ -5,6 +5,7 @@ import com.ufo.cart.gui.components.ModuleButton;
 import com.ufo.cart.gui.components.settings.RenderableSetting;
 import com.ufo.cart.module.Category;
 import com.ufo.cart.module.Module;
+import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.utils.render.ThemeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -24,6 +25,7 @@ public final class Window {
     public boolean dragging, extended;
     int dragX, dragY;
     private static final int BORDER_RADIUS = 8;
+    Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
 
     public Window(int x, int y, int width, int height, Category category) {
@@ -57,7 +59,7 @@ public final class Window {
 
         }
 
-        drawRoundedRect(context, x - 2, y - 2, width + 4, totalHeight + 4, BORDER_RADIUS, ThemeUtils.getBorderColor().getRGB());
+        drawRoundedRect(context, x - 2, y - 2, width + 4, totalHeight + 4, BORDER_RADIUS, themeModule.getColor(0).getRGB());
 
 
         context.fill(x, y, x + width, y + height, new Color(15, 15, 15, 220).getRGB());

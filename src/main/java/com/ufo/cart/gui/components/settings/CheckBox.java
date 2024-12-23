@@ -1,6 +1,8 @@
 package com.ufo.cart.gui.components.settings;
 
+import com.ufo.cart.Client;
 import com.ufo.cart.gui.components.ModuleButton;
+import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.setting.BooleanSetting;
 import com.ufo.cart.module.setting.Setting;
 import com.ufo.cart.utils.render.TextRenderer;
@@ -15,6 +17,7 @@ public final class CheckBox extends RenderableSetting {
     private boolean targetState;
     private float sliderXAnim;
     private static final float ANIM_SPEED = 0.2f;
+    Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
     public CheckBox(ModuleButton parent, Setting setting, int offset) {
         super(parent, setting, offset);
@@ -57,7 +60,7 @@ public final class CheckBox extends RenderableSetting {
         int sliderSize = switchWidth / 2;
 
 
-        Color sliderColor = setting.getValue() ? ThemeUtils.getMainColor(255) : Color.LIGHT_GRAY;
+        Color sliderColor = setting.getValue() ? themeModule.getColor(0)) : Color.LIGHT_GRAY;
         int glowColor = new Color(sliderColor.getRed(), sliderColor.getGreen(), sliderColor.getBlue(), 70).getRGB();
         int glowOffset = 2;
 

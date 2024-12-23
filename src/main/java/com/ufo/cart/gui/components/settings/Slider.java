@@ -1,6 +1,8 @@
 package com.ufo.cart.gui.components.settings;
 
+import com.ufo.cart.Client;
 import com.ufo.cart.gui.components.ModuleButton;
+import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.setting.NumberSetting;
 import com.ufo.cart.module.setting.Setting;
 import com.ufo.cart.utils.render.TextRenderer;
@@ -17,6 +19,7 @@ public final class Slider extends RenderableSetting {
     private static final int HANDLE_SIZE = 8;
     private static final double SMOOTH_FACTOR = 0.3;
     private static final int HITBOX_EXPAND = 6;
+    Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
     public Slider(ModuleButton parent, Setting setting, int offset) {
         super(parent, setting, offset);
@@ -42,7 +45,7 @@ public final class Slider extends RenderableSetting {
         int handleX = switchX + (int) (switchWidth * widthPercentage);
         int handleY = switchY;
 
-        Color sliderColor = ThemeUtils.getMainColor(255);
+        Color sliderColor = themeModule.getColor(0);
 
         context.fill(switchX, switchY, switchX + switchWidth, switchY + TRACK_HEIGHT, new Color(50, 50, 50).getRGB());
 

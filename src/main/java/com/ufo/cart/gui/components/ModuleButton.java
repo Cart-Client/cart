@@ -1,7 +1,9 @@
 package com.ufo.cart.gui.components;
 
+import com.ufo.cart.Client;
 import com.ufo.cart.gui.components.settings.*;
 import com.ufo.cart.module.Module;
+import com.ufo.cart.module.modules.client.Theme;
 import com.ufo.cart.module.setting.*;
 import com.ufo.cart.utils.render.TextRenderer;
 import com.ufo.cart.utils.render.ThemeUtils;
@@ -20,14 +22,15 @@ public final class ModuleButton {
     public boolean extended;
     public int settingOffset;
     private Color animatedColor;
-    private static final double ANIM_SPEED = 0.1;
+    private static final double ANIM_SPEED = 1.0;
+    Theme themeModule = Client.getInstance().getModuleManager().getModule(Theme.class);
 
     public ModuleButton(Window parent, Module module, int offset) {
         this.parent = parent;
         this.module = module;
         this.offset = offset;
         this.extended = false;
-        this.animatedColor = module.isEnabled() ? ThemeUtils.getMainColor(200) : new Color(25, 25, 25, 220); // Initial state
+        this.animatedColor = module.isEnabled() ? themeModule.getColor(0) : new Color(25, 25, 25, 220); // Initial state
 
         setupSettingsAndstuff();
     }
