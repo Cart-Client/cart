@@ -59,7 +59,7 @@ public final class Window {
 
         }
 
-        drawRoundedRect(context, x - 2, y - 2, width + 4, totalHeight + 4, BORDER_RADIUS, themeModule.getColor(0).getRGB());
+        drawRoundedRect(context, x - 2, y - 2, width + 4, totalHeight + 4, BORDER_RADIUS, new Color(25, 25, 25, 255).getRGB());
 
 
         context.fill(x, y, x + width, y + height, new Color(15, 15, 15, 255).getRGB());
