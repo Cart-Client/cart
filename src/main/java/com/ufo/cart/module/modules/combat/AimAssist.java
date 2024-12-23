@@ -20,7 +20,7 @@ public class AimAssist extends Module implements Render3DListener {
 
     private final NumberSetting FOV = new NumberSetting("FOV", 0.0, 180.0, 180.0, 1.0);
     private final NumberSetting Range = new NumberSetting("Range", 0.0, 10.0, 3.0, 1.0);
-    private final NumberSetting Smoothness = new NumberSetting("Smoothness", 0.0, 10.0, 10.0, 0.1);
+    private final NumberSetting Smoothness = new NumberSetting("Smoothness", 0.0, 10.0, 5.0, 0.1);
     private final NumberSetting Strength = new NumberSetting("Strength", 0.0, 1.0, 0.5, 0.01);
     private final BooleanSetting swordOnly = new BooleanSetting("Sword Only", false);
     private final BooleanSetting teamCheck = new BooleanSetting("Team Check", false);
@@ -75,6 +75,13 @@ public class AimAssist extends Module implements Render3DListener {
         return start + MathHelper.wrapDegrees(end - start) * t;
     }
 
+    private int gcd(int a, int b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+
     @Override
     public void onRender(Render3DEvent event) {
         if (mc.player == null || mc.world == null) return;
@@ -107,18 +114,21 @@ public class AimAssist extends Module implements Render3DListener {
 
         if (angle > FOV.getValue()) return;
 
-        float smoothingFactor = (float) Math.pow(0.5, Smoothness.getValueFloat() / 2.0);
+        float smoothingFactor = (float) Math.pow(0.5, Smoothness.getValueFloat());
         float strengthFactor = Strength.getValueFloat();
+
+        int gcd = gcd((int) Math.abs(yawDiff), (int) Math.abs(pitchDiff));
+        if (gcd != 0) {
+            yawDiff /= gcd;
+        }
+
 
         if (random.nextInt(1, 100) <= randomization.getValueInt()) {
             mc.player.setYaw((float) smoothStepLerp(smoothingFactor * strengthFactor, mc.player.getYaw(), targetYaw));
-            mc.player.setPitch((float) smoothStepLerp(smoothingFactor * strengthFactor, mc.player.getPitch(), targetPitch));
         } else {
             mc.player.setYaw(mc.player.getYaw() + yawDiff * smoothingFactor * strengthFactor);
-            mc.player.setPitch(mc.player.getPitch() + pitchDiff * smoothingFactor * strengthFactor);
         }
 
         mc.player.setYaw(MathHelper.wrapDegrees(mc.player.getYaw()));
-        mc.player.setPitch(MathHelper.clamp(mc.player.getPitch(), -90.0F, 90.0F));
     }
 }
