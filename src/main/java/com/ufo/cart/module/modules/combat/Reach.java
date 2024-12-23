@@ -32,8 +32,8 @@ public class Reach extends Module implements TickListener {
     @Override
     public void onTick() {
         if (mc.player != null) {
-            double max = range.getMax();
-            double min = range.getMin();
+            double max = range.getValueMax();
+            double min = range.getValueMin();
 
             if (max <= min) {
                 double temp = max;
